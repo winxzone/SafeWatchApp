@@ -13,15 +13,20 @@
         android:theme="@style/Theme.SafeWatchApp"
         tools:targetApi="31">
         <activity
-            android:name=".ChooseUserActivity"
-            android:exported="true">
-        </activity>
-
+            android:name=".ForgetPasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".LoginActivity"
+            android:exported="true" />
+        <activity
+            android:name=".RegistationActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ChooseUserActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

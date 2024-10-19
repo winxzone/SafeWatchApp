@@ -2,29 +2,30 @@ package com.example.safewatchapp
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.example.safewatchapp.databinding.LoginActivityBinding
+import com.example.safewatchapp.databinding.LoginBinding
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var bindingClass: LoginActivityBinding
+    private lateinit var bindingClass: LoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        bindingClass = LoginActivityBinding.inflate(layoutInflater)
+
+        bindingClass = LoginBinding.inflate(layoutInflater)
         setContentView(bindingClass.root)
 
-        // Добавить активити для регистрации и восстановления пароля
+        // Устанавливаем слушатель для кнопки перехода на RegistationActivity
+        bindingClass.buttonRegistation.setOnClickListener {
+            val intent = Intent(this, RegistationActivity::class.java)
+            startActivity(intent)
+        }
 
-//        val textViewForgotPassword = findViewById<TextView>(R.id.textViewForgotPassword)
-//        textViewForgotPassword.setOnClickListener {
-//            val intent = Intent(this, PasswordResetActivity::class.java)
-//            startActivity(intent)
-//        }
+        bindingClass.buttonForgotPassword.setOnClickListener{
+            val intent = Intent(this, ForgetPasswordActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 }

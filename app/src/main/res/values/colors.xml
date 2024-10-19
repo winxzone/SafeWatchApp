@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#A9A9A9</color> <!-- Серый цвет для неактивной кнопки -->
+    <color name="blue">#4891E0</color> <!-- Цвет активной кнопки -->
+
 </resources>

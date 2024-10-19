@@ -1,15 +1,20 @@
 <resources>
     <string name="app_name">SafeWatchApp</string>
-    // ChooseUserActivity
     <string name="user_selection_label">Кто использует это устройство?</string>
     <string name="button_next">Далее</string>
     <string name="radio_button_child">Ребёнок</string>
     <string name="radio_button_parent">Родитель</string>
+    <string name="login_title">Войти</string>
     <string name="login">Войти</string>
-    <string name="email_hint">Email</string>
-    <string name="password_hint">Password</string>
+    <string name="email_hint">Почта</string>
+    <string name="password_hint">Пароль</string>
+    <string name="password_repeat_hint">Повторите пароль</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="registration">Регистрация</string>
-
-
+    <string name="registation_title">Регистрация</string>
+    <string name="name_hint">Имя</string>
+    <string name="confirmation_of_policy_rules">Я подтверждаю правила Политики конфиденциальности</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="recovery_password">Восстановление пароля</string>
+    <string name="recover">Восстановить</string>
 </resources>

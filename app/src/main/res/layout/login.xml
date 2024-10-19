@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!--  Перепроверить на всякий случай id всех элементов  -->
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
-        android:text="@string/login"
+        android:text="@string/login_title"
         android:textSize="28sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,8 +36,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.39" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="0.151" />
 
     <EditText
         android:id="@+id/editTextTextPassword"
@@ -50,16 +52,16 @@
         android:paddingEnd="20dp"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editTextTextEmailAddress"
         app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/editTextTextEmailAddress"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.478" />
 
     <TextView
-        android:id="@+id/textViewForgotPassword"
-        android:layout_width="212dp"
-        android:layout_height="43dp"
+        android:id="@+id/buttonForgotPassword"
+        android:layout_width="227dp"
+        android:layout_height="50dp"
         android:layout_marginBottom="424dp"
         android:clickable="true"
         android:focusable="true"
@@ -68,32 +70,33 @@
         android:text="@string/forgot_password"
         android:textAlignment="center"
         android:textColor="#4891E0"
-        android:textSize="16sp"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/button"
-        android:layout_width="410dp"
-        android:layout_height="84dp"
-        android:layout_marginBottom="180dp"
+        android:layout_width="386dp"
+        android:layout_height="81dp"
+        android:layout_marginTop="192dp"
         android:backgroundTint="#4891E0"
         android:text="@string/login"
         android:textColor="@color/white"
         android:textSize="28sp"
         app:cornerRadius="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonForgotPassword" />
 
     <TextView
-        android:id="@+id/textViewRegistration"
-        android:layout_width="212dp"
-        android:layout_height="43dp"
-        android:layout_marginBottom="124dp"
+        android:id="@+id/buttonRegistation"
+        android:layout_width="227dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginBottom="88dp"
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="sans-serif-medium"
@@ -101,10 +104,12 @@
         android:text="@string/registration"
         android:textAlignment="center"
         android:textColor="#4891E0"
-        android:textSize="16sp"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintEnd_toEndOf="@+id/button"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="@+id/button"
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
