@@ -16,7 +16,6 @@ class LoginActivity : AppCompatActivity() {
         bindingClass = LoginBinding.inflate(layoutInflater)
         setContentView(bindingClass.root)
 
-        // Устанавливаем слушатель для кнопки перехода на RegistationActivity
         bindingClass.buttonRegistation.setOnClickListener {
             val intent = Intent(this, RegistationActivity::class.java)
             startActivity(intent)

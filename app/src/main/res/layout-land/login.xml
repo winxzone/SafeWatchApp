@@ -6,24 +6,24 @@
     android:layout_height="match_parent">
 
     <!--  Перепроверить на всякий случай id всех элементов  -->
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:fontFamily="sans-serif-medium"
         android:text="@string/login_title"
         android:textSize="28sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.237" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/editTextTextEmailAddress"
         android:layout_width="359dp"
         android:layout_height="66dp"
+        android:layout_marginTop="17dp"
         android:autofillHints="emailAddress"
         android:background="@drawable/rounded_edittext"
         android:ems="10"
@@ -32,18 +32,16 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.151" />
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
         android:id="@+id/editTextTextPassword"
         android:layout_width="359dp"
         android:layout_height="66dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="12dp"
         android:autofillHints="password"
         android:background="@drawable/rounded_edittext"
         android:ems="10"
@@ -52,16 +50,15 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/editTextTextEmailAddress"
         app:layout_constraintStart_toStartOf="@+id/editTextTextEmailAddress"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.459" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress" />
 
     <TextView
         android:id="@+id/buttonForgotPassword"
         android:layout_width="227dp"
         android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="sans-serif-medium"
@@ -80,21 +77,21 @@
         android:id="@+id/button"
         android:layout_width="386dp"
         android:layout_height="81dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="4dp"
         android:backgroundTint="@color/blue_main"
         android:text="@string/login"
         android:textColor="@color/white"
         android:textSize="28sp"
         app:cornerRadius="25dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonRegistation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/buttonForgotPassword"
+        app:layout_constraintStart_toStartOf="@+id/buttonForgotPassword"
+        app:layout_constraintTop_toBottomOf="@+id/buttonForgotPassword" />
 
     <TextView
         android:id="@+id/buttonRegistation"
         android:layout_width="227dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="108dp"
+        android:layout_marginTop="4dp"
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="sans-serif-medium"
@@ -103,9 +100,9 @@
         android:textAlignment="center"
         android:textColor="@color/blue_main"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/button"
         app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="@+id/button" />
+        app:layout_constraintStart_toStartOf="@+id/button"
+        app:layout_constraintTop_toBottomOf="@+id/button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

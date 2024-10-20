@@ -20,22 +20,19 @@ class ChooseUserActivity : AppCompatActivity() {
         bindingClass.buttonNext.isEnabled = false
         bindingClass.buttonNext.setBackgroundColor(getColor(R.color.gray))
 
-        // Устанавливаем слушатель на RadioGroup
         bindingClass.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.radioButtonChild -> selectedRole = "Child"
                 R.id.radioButtonParent -> selectedRole = "Parent"
             }
 
-            // Включаем кнопку, если выбран один из RadioButton
             bindingClass.buttonNext.isEnabled = true
-            bindingClass.buttonNext.setBackgroundColor(getColor(R.color.blue))
+            bindingClass.buttonNext.setBackgroundColor(getColor(R.color.blue_main))
         }
 
-        // Логика нажатия на кнопку "Далее"
         bindingClass.buttonNext.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
-            // Можно передать значение selectedRole в следующее Activity через Intent, если нужно
+            // Можно передать значение selectedRole в следующее Activity через Intent
             startActivity(intent)
         }
     }
