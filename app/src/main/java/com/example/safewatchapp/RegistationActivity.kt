@@ -11,14 +11,28 @@ class RegistationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        setupUI()
+        setupListeners()
+    }
 
+    // Метод для начальной настройки интерфейса
+    private fun setupUI() {
+        enableEdgeToEdge()
         bindingClass = RegistationBinding.inflate(layoutInflater)
         setContentView(bindingClass.root)
+    }
 
+    // Метод для установки слушателей кнопок
+    private fun setupListeners() {
         bindingClass.buttonLogin.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            navigateToLogin()
         }
+    }
+
+    // Метод для перехода на LoginActivity
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

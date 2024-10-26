@@ -11,16 +11,28 @@ class ForgetPasswordActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        setupUI()
+        setupListeners()
+    }
 
+    // Метод для начальной настройки интерфейса
+    private fun setupUI() {
+        enableEdgeToEdge()
         bindingClass = ForgetPasswordBinding.inflate(layoutInflater)
         setContentView(bindingClass.root)
+    }
 
+    // Метод для установки слушателей кнопок
+    private fun setupListeners() {
         bindingClass.backButton.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            navigateBackToLogin()
         }
+    }
 
-
+    // Метод для возврата на LoginActivity
+    private fun navigateBackToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

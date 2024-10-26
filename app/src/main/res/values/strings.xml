@@ -2,8 +2,8 @@
     <string name="app_name">SafeWatchApp</string>
     <string name="user_selection_label">Кто использует это устройство?</string>
     <string name="button_next">Далее</string>
-    <string name="radio_button_child">Ребёнок</string>
-    <string name="radio_button_parent">Родитель</string>
+    <string name="child">Ребёнок</string>
+    <string name="parent">Родитель</string>
     <string name="login_title">Войти</string>
     <string name="login">Войти</string>
     <string name="email_hint">Почта</string>
@@ -17,4 +17,6 @@
     <string name="register">Зарегистрироваться</string>
     <string name="recovery_password">Восстановление пароля</string>
     <string name="recover">Восстановить</string>
+    <string name="child_card_description">Выбор ребенка</string>
+    <string name="parent_card_description">Выбор родителя</string>
 </resources>

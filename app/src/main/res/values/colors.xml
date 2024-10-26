@@ -5,4 +5,5 @@
     <color name="gray">#A9A9A9</color> <!-- Серый цвет для неактивной кнопки -->
     <color name="blue_main">#4891E0</color> <!-- Цвет активной кнопки -->
     <color name="blue_main_radiobtn">#A2C6ED</color>
+    <color name="stroke_color">#F98B72</color>
 </resources>
