@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,56 +8,14 @@
     android:layout_height="match_parent"
     tools:context=".ChooseUserActivity">
 
+    <!-- Заголовок -->
 
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="408dp"
-        android:layout_height="217dp"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/labelUserSelection">
-
-        <RadioButton
-            android:id="@+id/radioButtonChild"
-            android:layout_width="wrap_content"
-            android:layout_height="213dp"
-            android:background="@drawable/boy"
-            android:text="" />
-
-        <!--android:button="@null"/> Понадобится для дизайна radiobtn-->
-
-        <RadioButton
-            android:id="@+id/radioButtonParent"
-            android:layout_width="wrap_content"
-            android:layout_height="213dp"
-            android:background="@drawable/woman"
-            android:text="" />
-    </RadioGroup>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_next"
-        android:layout_width="0dp"
-        android:layout_height="84dp"
-        android:layout_marginTop="10dp"
-        android:backgroundTint="@color/blue_main"
-        android:text="@string/button_next"
-        android:textColor="@color/white"
-        android:textSize="28sp"
-        app:cornerRadius="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/radioGroup"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/radioGroup"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup"
-        app:layout_constraintVertical_bias="0.058" />
-
+    <!-- Контейнер для выбора с карточками -->
     <TextView
         android:id="@+id/labelUserSelection"
-        android:layout_width="520dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="@string/user_selection_label"
         android:textAlignment="center"
         android:textSize="28sp"
@@ -65,6 +24,79 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/radioGroup"
+        android:layout_width="427dp"
+        android:layout_height="206dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/buttonNext"
+        app:layout_constraintEnd_toEndOf="@+id/labelUserSelection"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="@+id/labelUserSelection"
+        app:layout_constraintTop_toBottomOf="@+id/labelUserSelection">
+
+        <!-- Карточка для "Ребенок" -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardChild"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:contentDescription="@string/child_card_description"
+            android:focusable="true"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="16dp"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="8dp">
+
+            <ImageView
+                android:id="@+id/imgChild"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/child"
+                android:scaleType="centerCrop"
+                android:src="@drawable/boy" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Карточка для "Родитель" -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardParent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:contentDescription="@string/parent_card_description"
+            android:focusable="true"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="16dp"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="8dp">
+
+            <ImageView
+                android:id="@+id/Parent"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/woman" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <!-- Кнопка "Далее" -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonNext"
+        android:layout_width="0dp"
+        android:layout_height="84dp"
+        android:backgroundTint="@color/blue_main"
+        android:text="@string/button_next"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        app:cornerRadius="25dp"
+        app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/radioGroup"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

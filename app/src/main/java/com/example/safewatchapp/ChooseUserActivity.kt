@@ -39,6 +39,7 @@ class ChooseUserActivity : AppCompatActivity() {
 
         bindingClass.buttonNext.setOnClickListener {
             navigateToNextScreen()
+            finish()
         }
     }
 

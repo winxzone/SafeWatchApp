@@ -13,10 +13,17 @@
     <string name="registration">Регистрация</string>
     <string name="registation_title">Регистрация</string>
     <string name="name_hint">Имя</string>
-    <string name="confirmation_of_policy_rules">Я подтверждаю правила Политики конфиденциальности</string>
+    <string name="confirmation_of_policy_rules">Я подтверждаю правила <a href="policy_rules">Политики конфиденциальности</a></string>
     <string name="register">Зарегистрироваться</string>
     <string name="recovery_password">Восстановление пароля</string>
     <string name="recover">Восстановить</string>
     <string name="child_card_description">Выбор ребенка</string>
     <string name="parent_card_description">Выбор родителя</string>
+    <string name="error_empty">Поле не может быть пустым</string>
+    <string name="error_invalid_email">Некорректный формат почты</string>
+    <string name="error_short_password">Размер пароля должен быть не менее 6 символов</string>
+    <string name="error_name_too_short">Размер имени должен быть не менее 2 символов</string>
+    <string name="error_passwords_do_not_match">Пароли не совпадают</string>
+
+
 </resources>

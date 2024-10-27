@@ -26,6 +26,7 @@ class ForgetPasswordActivity : AppCompatActivity() {
     private fun setupListeners() {
         bindingClass.backButton.setOnClickListener {
             navigateBackToLogin()
+            finish()
         }
     }
 

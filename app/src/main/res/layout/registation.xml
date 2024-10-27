@@ -11,8 +11,20 @@
 
 <!--  Перепроверить id всех элементов  -->
 
+    <ImageView
+        android:id="@+id/backButton"
+        android:layout_width="52dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.041"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back_button" />
+
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/labelRegistation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="160dp"
@@ -24,7 +36,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/edName"
         android:layout_width="359dp"
         android:layout_height="66dp"
         android:layout_marginTop="40dp"
@@ -36,13 +48,13 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="@+id/labelRegistation"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintStart_toStartOf="@+id/labelRegistation"
+        app:layout_constraintTop_toBottomOf="@+id/labelRegistation" />
 
     <EditText
-        android:id="@+id/editTextTextEmailAddress"
+        android:id="@+id/edEmail"
         android:layout_width="359dp"
         android:layout_height="66dp"
         android:layout_marginTop="8dp"
@@ -54,13 +66,13 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextText"
+        app:layout_constraintEnd_toEndOf="@+id/edName"
         app:layout_constraintHorizontal_bias="0.25"
-        app:layout_constraintStart_toStartOf="@+id/editTextText"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+        app:layout_constraintStart_toStartOf="@+id/edName"
+        app:layout_constraintTop_toBottomOf="@+id/edName" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/edPassword"
         android:layout_width="359dp"
         android:layout_height="66dp"
         android:layout_marginTop="32dp"
@@ -72,12 +84,12 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextEmailAddress"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextEmailAddress"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress" />
+        app:layout_constraintEnd_toEndOf="@+id/edEmail"
+        app:layout_constraintStart_toStartOf="@+id/edEmail"
+        app:layout_constraintTop_toBottomOf="@+id/edEmail" />
 
     <EditText
-        android:id="@+id/editTextTextPasswordRepeat"
+        android:id="@+id/edPasswordRepeat"
         android:layout_width="359dp"
         android:layout_height="66dp"
         android:layout_marginTop="8dp"
@@ -89,27 +101,29 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+        app:layout_constraintEnd_toEndOf="@+id/edPassword"
         app:layout_constraintHorizontal_bias="0.475"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintStart_toStartOf="@+id/edPassword"
+        app:layout_constraintTop_toBottomOf="@+id/edPassword" />
 
     <CheckBox
-        android:id="@+id/checkBoxPrivacyPolicy"
+        android:id="@+id/cbPrivacyPolicy"
         android:layout_width="358dp"
         android:layout_height="57dp"
         android:layout_marginTop="16dp"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         android:text="@string/confirmation_of_policy_rules"
+        android:textColorLink="@color/blue_main"
+        android:buttonTint="@color/blue_main"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPasswordRepeat"
+        app:layout_constraintEnd_toEndOf="@+id/edPasswordRepeat"
         app:layout_constraintHorizontal_bias="0.23"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPasswordRepeat"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPasswordRepeat" />
+        app:layout_constraintStart_toStartOf="@+id/edPasswordRepeat"
+        app:layout_constraintTop_toBottomOf="@+id/edPasswordRepeat" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonRegister"
         android:layout_width="386dp"
         android:layout_height="81dp"
         android:layout_marginTop="36dp"
@@ -118,28 +132,10 @@
         android:textColor="@color/white"
         android:textSize="28sp"
         app:cornerRadius="25dp"
-        app:layout_constraintEnd_toEndOf="@+id/checkBoxPrivacyPolicy"
+        app:layout_constraintEnd_toEndOf="@+id/cbPrivacyPolicy"
         app:layout_constraintHorizontal_bias="0.657"
-        app:layout_constraintStart_toStartOf="@+id/checkBoxPrivacyPolicy"
-        app:layout_constraintTop_toBottomOf="@+id/checkBoxPrivacyPolicy" />
-
-    <TextView
-        android:id="@+id/buttonLogin"
-        android:layout_width="227dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="4dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="sans-serif-medium"
-        android:padding="8dp"
-        android:text="@string/login"
-        android:textAlignment="center"
-        android:textColor="#4891E0"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/button"
-        app:layout_constraintHorizontal_bias="0.522"
-        app:layout_constraintStart_toStartOf="@+id/button"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintStart_toStartOf="@+id/cbPrivacyPolicy"
+        app:layout_constraintTop_toBottomOf="@+id/cbPrivacyPolicy" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
