@@ -73,13 +73,11 @@ class RegistationActivity : AppCompatActivity() {
                     finish()
                 } else {
                     Log.e("Register", "Registration failed: ${response.code()} - ${response.message()}")
-                    // Обработка ошибок
                 }
             }
 
             override fun onFailure(call: Call<User>, t: Throwable) {
                 Log.e("Register", "Network error: ${t.message}")
-                // Обработка сетевой ошибки
             }
         })
     }
