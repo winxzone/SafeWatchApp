@@ -1,10 +1,18 @@
-package com.example.safewatchapp
+package com.example.safewatchapp.screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.example.safewatchapp.R
 import com.example.safewatchapp.databinding.RegistationBinding
+import com.example.safewatchapp.models.User
+import com.example.safewatchapp.models.UserRegistration
+import com.example.safewatchapp.service.ApiClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class RegistationActivity : AppCompatActivity() {
     private lateinit var bindingClass: RegistationBinding
@@ -22,14 +30,16 @@ class RegistationActivity : AppCompatActivity() {
         setContentView(bindingClass.root)
     }
 
+
     // Метод для установки слушателей кнопок
     private fun setupListeners() {
-        bindingClass.buttonRegister.setOnClickListener{
-            if (validateRegistration())
-                navigateToLogin()
+        bindingClass.buttonRegister.setOnClickListener {
+            if (validateRegistration()) {
+                registerUser()
+            }
         }
 
-        bindingClass.backButton?.setOnClickListener{
+        bindingClass.backButton?.setOnClickListener {
             navigateToLogin()
         }
     }
@@ -41,15 +51,47 @@ class RegistationActivity : AppCompatActivity() {
         finish()
     }
 
-    fun validateRegistration():Boolean {
+    private fun registerUser() {
+        val name = bindingClass.edName.text.toString()
+        val email = bindingClass.edEmail.text.toString()
+        val password = bindingClass.edPassword.text.toString()
+        val confirmPassword = bindingClass.edConfirmPassword.text.toString()
+
+        // Создаём объект UserRegistration
+        val userRegistration = UserRegistration(name, email, password, confirmPassword)
+
+        // Теперь вызываем функцию для регистрации
+        ApiClient.apiService.registerUser(userRegistration).enqueue(object : Callback<User> {
+            override fun onResponse(call: Call<User>, response: Response<User>) {
+                if (response.isSuccessful) {
+                    // Обработка успешной регистрации
+                    Log.d("Register", "User registered successfully: ${response.body()}")
+
+                    // Перенаправление на экран входа после успешной регистрации
+                    val intent = Intent(this@RegistationActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Log.e("Register", "Registration failed: ${response.code()} - ${response.message()}")
+                    // Обработка ошибок
+                }
+            }
+
+            override fun onFailure(call: Call<User>, t: Throwable) {
+                Log.e("Register", "Network error: ${t.message}")
+                // Обработка сетевой ошибки
+            }
+        })
+    }
+
+    private fun validateRegistration(): Boolean {
         var isValid = true
 
         bindingClass.apply {
-
             edEmail.error = null
             edName.error = null
             edPassword.error = null
-            edPasswordRepeat.error = null
+            edConfirmPassword.error = null
 
             // Проверка email
             val email = edEmail.text.toString().trim()
@@ -82,17 +124,15 @@ class RegistationActivity : AppCompatActivity() {
             }
 
             // Проверка подтверждения пароля
-            val passwordRepeat = edPasswordRepeat.text.toString().trim()
+            val passwordRepeat = edConfirmPassword.text.toString().trim()
             if (passwordRepeat.isEmpty()) {
-                edPasswordRepeat.error = getString(R.string.error_empty)
+                edConfirmPassword.error = getString(R.string.error_empty)
                 isValid = false
             } else if (password != passwordRepeat) {
-                edPasswordRepeat.error = getString(R.string.error_passwords_do_not_match)
+                edConfirmPassword.error = getString(R.string.error_passwords_do_not_match)
                 isValid = false
             }
-
         }
-
         return isValid
     }
 }

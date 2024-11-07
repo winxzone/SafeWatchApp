@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegistationActivity">
+    tools:context=".screen.RegistationActivity">
 
     <TextView
         android:id="@+id/textView"
@@ -52,7 +52,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@+id/edPasswordRepeat"
+        app:layout_constraintEnd_toStartOf="@+id/edConfirmPassword"
         app:layout_constraintStart_toStartOf="@+id/edName"
         app:layout_constraintTop_toBottomOf="@+id/edName" />
 
@@ -75,7 +75,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/edPasswordRepeat"
+        android:id="@+id/edConfirmPassword"
         android:layout_width="359dp"
         android:layout_height="66dp"
         android:layout_marginStart="5dp"
@@ -100,7 +100,7 @@
         android:paddingStart="10dp"
         android:text="@string/confirmation_of_policy_rules"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/edPasswordRepeat"
+        app:layout_constraintEnd_toEndOf="@+id/edConfirmPassword"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="@+id/edEmail"
         app:layout_constraintTop_toBottomOf="@+id/textView" />

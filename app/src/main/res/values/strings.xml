@@ -23,7 +23,10 @@
     <string name="error_invalid_email">Некорректный формат почты</string>
     <string name="error_short_password">Размер пароля должен быть не менее 6 символов</string>
     <string name="error_name_too_short">Размер имени должен быть не менее 2 символов</string>
+    <string name="error_user_not_found">Пользователь не найден</string>
+    <string name="error_invalid_password">Некорректный пароль</string>
     <string name="error_passwords_do_not_match">Пароли не совпадают</string>
+
 
 
 </resources>

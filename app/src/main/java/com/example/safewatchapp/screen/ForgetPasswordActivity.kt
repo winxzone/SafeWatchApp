@@ -1,4 +1,4 @@
-package com.example.safewatchapp
+package com.example.safewatchapp.screen
 
 import android.content.Intent
 import android.os.Bundle

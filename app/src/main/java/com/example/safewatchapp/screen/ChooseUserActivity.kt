@@ -1,9 +1,10 @@
-package com.example.safewatchapp
+package com.example.safewatchapp.screen
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.safewatchapp.constance.Constance
+import com.example.safewatchapp.R
+import com.example.safewatchapp.util.Constants
 import com.example.safewatchapp.databinding.ChooseUserBinding
 
 class ChooseUserActivity : AppCompatActivity() {
@@ -30,11 +31,11 @@ class ChooseUserActivity : AppCompatActivity() {
     private fun setupListeners() {
 
         bindingClass.cardChild.setOnClickListener {
-            selectRole(Constance.CHILD)
+            selectRole(Constants.CHILD)
         }
 
         bindingClass.cardParent.setOnClickListener {
-            selectRole(Constance.PARENT)
+            selectRole(Constants.PARENT)
         }
 
         bindingClass.buttonNext.setOnClickListener {
@@ -49,11 +50,11 @@ class ChooseUserActivity : AppCompatActivity() {
 
         // Обводка нужной карточки
         when (role) {
-            Constance.CHILD -> {
+            Constants.CHILD -> {
                 bindingClass.cardChild.strokeColor = getColor(R.color.stroke_color)
                 bindingClass.cardParent.strokeColor = getColor(android.R.color.transparent)
             }
-            Constance.PARENT -> {
+            Constants.PARENT -> {
                 bindingClass.cardParent.strokeColor = getColor(R.color.stroke_color)
                 bindingClass.cardChild.strokeColor = getColor(android.R.color.transparent)
             }
@@ -67,7 +68,7 @@ class ChooseUserActivity : AppCompatActivity() {
     // Переход на следующий экран
     private fun navigateToNextScreen() {
         val intent = Intent(this, LoginActivity::class.java)
-        intent.putExtra(Constance.ROLE, selectedRole)  // Передача роли в следующее Activity
+        intent.putExtra(Constants.ROLE, selectedRole)  // Передача роли в следующее Activity
         startActivity(intent)
     }
 }
