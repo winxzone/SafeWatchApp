@@ -10,6 +10,7 @@ import com.example.safewatchapp.databinding.LoginBinding
 import com.example.safewatchapp.models.TokenResponse
 import com.example.safewatchapp.models.UserLogin
 import com.example.safewatchapp.service.ApiClient
+import com.example.safewatchapp.util.TokenManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -63,7 +64,8 @@ class LoginActivity : AppCompatActivity() {
 
     // Метод для перехода на главный экран
     private fun navigateToMainScreen() {
-        val intent = Intent(this, MainActivity::class.java)
+        // TODO: Не забыть изменить на MainActivity
+        val intent = Intent(this, DeviceVerificationActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Очищаем стек активностей
         startActivity(intent)
         finish()
@@ -114,8 +116,10 @@ class LoginActivity : AppCompatActivity() {
                         val token = response.body()?.token
                         Log.d("Login", "Login successful: Token: $token")
 
-                        // Сохраняем токен
-                        saveToken(token)
+                        // Сохраняем токен с помощью TokenManager
+                        token?.let {
+                            TokenManager.saveToken(applicationContext, it)
+                        }
 
                         // Переход на главный экран
                         navigateToMainScreen()
@@ -140,15 +144,4 @@ class LoginActivity : AppCompatActivity() {
             }
         })
     }
-
-
-
-    // Метод для сохранения токена в SharedPreferences
-    private fun saveToken(token: String?) {
-        val sharedPreferences = getSharedPreferences("YourAppPrefs", MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("jwt_token", token)
-        editor.apply()
-    }
-
 }
