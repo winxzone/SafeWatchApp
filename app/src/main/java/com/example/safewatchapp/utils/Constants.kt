@@ -1,7 +1,6 @@
-package com.example.safewatchapp.util
+package com.example.safewatchapp.utils
 
 object Constants {
-    const val ROLE = "role"
     const val CHILD = "Child"
     const val PARENT = "Parent"
 

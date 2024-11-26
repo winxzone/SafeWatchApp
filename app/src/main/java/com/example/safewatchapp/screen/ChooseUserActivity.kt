@@ -4,8 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.safewatchapp.R
-import com.example.safewatchapp.util.Constants
+import com.example.safewatchapp.utils.Constants
 import com.example.safewatchapp.databinding.ChooseUserBinding
+import com.example.safewatchapp.utils.RoleManager
 
 class ChooseUserActivity : AppCompatActivity() {
     private lateinit var bindingClass: ChooseUserBinding
@@ -39,6 +40,7 @@ class ChooseUserActivity : AppCompatActivity() {
         }
 
         bindingClass.buttonNext.setOnClickListener {
+            saveRoleToPreferences()
             navigateToNextScreen()
             finish()
         }
@@ -65,10 +67,16 @@ class ChooseUserActivity : AppCompatActivity() {
         bindingClass.buttonNext.setBackgroundColor(getColor(R.color.blue_main))
     }
 
+    // Сохранение роли в SharedPreferences через RoleManager
+    private fun saveRoleToPreferences() {
+        selectedRole?.let {
+            RoleManager.saveRole(this, it)  // Сохраняем выбранную роль
+        }
+    }
+
     // Переход на следующий экран
     private fun navigateToNextScreen() {
         val intent = Intent(this, LoginActivity::class.java)
-        intent.putExtra(Constants.ROLE, selectedRole)  // Передача роли в следующее Activity
         startActivity(intent)
     }
 }
