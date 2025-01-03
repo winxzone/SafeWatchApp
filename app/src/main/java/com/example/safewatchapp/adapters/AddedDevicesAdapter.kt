@@ -4,12 +4,11 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.safewatchapp.models.ChildDevice
-import java.util.Locale
-import java.text.SimpleDateFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.safewatchapp.R
-import java.util.Date
+import com.example.safewatchapp.utils.TimeFormatter
+
 
 
 class AddedDevicesAdapter(private val devices: List<ChildDevice>, private val onDeviceAction: (ChildDevice) -> Unit) :
@@ -33,19 +32,10 @@ class AddedDevicesAdapter(private val devices: List<ChildDevice>, private val on
 
         fun bind(device: ChildDevice) {
             deviceName.text = device.name
-            confirmedTime.text = "Дата: ${formatTime(device.confirmedAt)}" // Отображаем дату подтверждения
+            confirmedTime.text = TimeFormatter.formatDateTime(device.createdAt)
 
             itemView.setOnClickListener {
-                onDeviceAction(device) // Например, открыть подробности устройства
-            }
-        }
-
-        private fun formatTime(timeInMillis: Long?): String {
-            val dateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-            return if (timeInMillis != null) {
-                dateFormat.format(Date(timeInMillis))
-            } else {
-                "Unknown"
+                onDeviceAction(device)
             }
         }
     }

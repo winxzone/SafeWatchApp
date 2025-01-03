@@ -8,9 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.safewatchapp.R
 import com.example.safewatchapp.models.ChildDevice
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.safewatchapp.utils.TimeFormatter
 
 class NewDevicesAdapter(private val devices: List<ChildDevice>, private val onDeviceAction: (ChildDevice, Boolean) -> Unit) :
     RecyclerView.Adapter<NewDevicesAdapter.DeviceViewHolder>() {
@@ -35,8 +33,7 @@ class NewDevicesAdapter(private val devices: List<ChildDevice>, private val onDe
 
         fun bind(device: ChildDevice) {
             deviceName.text = device.name
-//
-            requestTime.text = "Дата: ${formatTime(device.createdAt)}"
+            requestTime.text = TimeFormatter.formatDateTime(device.createdAt)
 
             confirmButton.setOnClickListener {
                 onDeviceAction(device, true)
@@ -45,11 +42,6 @@ class NewDevicesAdapter(private val devices: List<ChildDevice>, private val onDe
             rejectButton.setOnClickListener {
                 onDeviceAction(device, false)
             }
-        }
-
-        private fun formatTime(timeInMillis: Long): String {
-            val dateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-            return dateFormat.format(Date(timeInMillis))
         }
     }
 }
