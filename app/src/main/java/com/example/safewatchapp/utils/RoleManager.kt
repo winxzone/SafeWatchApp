@@ -23,8 +23,4 @@ object RoleManager {
     fun isChild(context: Context): Boolean {
         return getRole(context) == Constants.CHILD
     }
-
-//    fun isParent(context: Context): Boolean {
-//        return getRole(context) == Constants.PARENT
-//    }
 }

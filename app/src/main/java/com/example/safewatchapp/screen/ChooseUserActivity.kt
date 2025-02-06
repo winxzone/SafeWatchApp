@@ -9,14 +9,21 @@ import com.example.safewatchapp.databinding.ChooseUserBinding
 import com.example.safewatchapp.utils.RoleManager
 
 class ChooseUserActivity : AppCompatActivity() {
-    private lateinit var bindingClass: ChooseUserBinding
+    private lateinit var binding: ChooseUserBinding
     private var selectedRole: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        bindingClass = ChooseUserBinding.inflate(layoutInflater)
-        setContentView(bindingClass.root)
+        val savedRole = RoleManager.getRole(this)
+        if (savedRole != null) {
+            navigateToNextScreen()
+            finish()
+            return
+        }
+
+        binding = ChooseUserBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setupUI()
         setupListeners()
@@ -24,22 +31,22 @@ class ChooseUserActivity : AppCompatActivity() {
 
     // Настройка интерфейса
     private fun setupUI() {
-        bindingClass.buttonNext.isEnabled = false
-        bindingClass.buttonNext.setBackgroundColor(getColor(R.color.gray))
+        binding.buttonNext.isEnabled = false
+        binding.buttonNext.setBackgroundColor(getColor(R.color.gray))
     }
 
     // Настройка всех слушателей
     private fun setupListeners() {
 
-        bindingClass.cardChild.setOnClickListener {
+        binding.cardChild.setOnClickListener {
             selectRole(Constants.CHILD)
         }
 
-        bindingClass.cardParent.setOnClickListener {
+        binding.cardParent.setOnClickListener {
             selectRole(Constants.PARENT)
         }
 
-        bindingClass.buttonNext.setOnClickListener {
+        binding.buttonNext.setOnClickListener {
             saveRoleToPreferences()
             navigateToNextScreen()
             finish()
@@ -53,18 +60,18 @@ class ChooseUserActivity : AppCompatActivity() {
         // Обводка нужной карточки
         when (role) {
             Constants.CHILD -> {
-                bindingClass.cardChild.strokeColor = getColor(R.color.stroke_color)
-                bindingClass.cardParent.strokeColor = getColor(android.R.color.transparent)
+                binding.cardChild.strokeColor = getColor(R.color.stroke_color)
+                binding.cardParent.strokeColor = getColor(android.R.color.transparent)
             }
             Constants.PARENT -> {
-                bindingClass.cardParent.strokeColor = getColor(R.color.stroke_color)
-                bindingClass.cardChild.strokeColor = getColor(android.R.color.transparent)
+                binding.cardParent.strokeColor = getColor(R.color.stroke_color)
+                binding.cardChild.strokeColor = getColor(android.R.color.transparent)
             }
         }
 
         // Активируем кнопку "Next"
-        bindingClass.buttonNext.isEnabled = true
-        bindingClass.buttonNext.setBackgroundColor(getColor(R.color.blue_main))
+        binding.buttonNext.isEnabled = true
+        binding.buttonNext.setBackgroundColor(getColor(R.color.blue_main))
     }
 
     // Сохранение роли в SharedPreferences через RoleManager
