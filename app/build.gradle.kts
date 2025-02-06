@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    // Retrofit для работы с сервером
+    implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 

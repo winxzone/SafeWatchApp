@@ -2,12 +2,11 @@ package com.example.safewatchapp.screen
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.safewatchapp.databinding.ForgetPasswordBinding
 
 class ForgetPasswordActivity : AppCompatActivity() {
-    private lateinit var bindingClass: ForgetPasswordBinding
+    private lateinit var binding: ForgetPasswordBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,14 +16,14 @@ class ForgetPasswordActivity : AppCompatActivity() {
 
     // Метод для начальной настройки интерфейса
     private fun setupUI() {
-        enableEdgeToEdge()
-        bindingClass = ForgetPasswordBinding.inflate(layoutInflater)
-        setContentView(bindingClass.root)
+
+        binding = ForgetPasswordBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 
     // Метод для установки слушателей кнопок
     private fun setupListeners() {
-        bindingClass.backButton.setOnClickListener {
+        binding.backButton.setOnClickListener {
             navigateBackToLogin()
             finish()
         }

@@ -1,5 +1,6 @@
 package com.example.safewatchapp.screen
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,30 +12,36 @@ import com.example.safewatchapp.models.ChildDevice
 import com.example.safewatchapp.service.ApiClient
 import com.example.safewatchapp.adapters.NewDevicesAdapter
 import com.example.safewatchapp.adapters.AddedDevicesAdapter
-import com.example.safewatchapp.util.TokenManager
+import com.example.safewatchapp.utils.TokenManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class DeviceVerificationActivity : AppCompatActivity() {
-    private lateinit var bindingClass: DeviceVerificationBinding
+    private lateinit var binding: DeviceVerificationBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        bindingClass = DeviceVerificationBinding.inflate(layoutInflater)
-        setContentView(bindingClass.root)
+        binding = DeviceVerificationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        bindingClass.newDevicesRecyclerView.layoutManager = LinearLayoutManager(this)
-        bindingClass.addedDevicesRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.newDevicesRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.addedDevicesRecyclerView.layoutManager = LinearLayoutManager(this)
 
         listChildDevice()
+        setupListeners()
     }
 
-    // Метод для установки слушателей кнопок
-//    private fun setupListeners() {
-//
-//    }
+
+    private fun setupListeners() {
+        binding.backButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
+    }
 
     private fun listChildDevice() {
         val token = TokenManager.getToken(this)
@@ -71,19 +78,19 @@ class DeviceVerificationActivity : AppCompatActivity() {
         val newDevicesAdapter = NewDevicesAdapter(newDevices) { device, isConfirmed ->
             handleDeviceAction(device, isConfirmed)
         }
-        bindingClass.newDevicesRecyclerView.adapter = newDevicesAdapter
+        binding.newDevicesRecyclerView.adapter = newDevicesAdapter
 
         if (newDevices.isEmpty()) {
-            bindingClass.newDevicesRecyclerView.visibility = View.GONE
+            binding.newDevicesRecyclerView.visibility = View.GONE
         } else {
-            bindingClass.newDevicesRecyclerView.visibility = View.VISIBLE
+            binding.newDevicesRecyclerView.visibility = View.VISIBLE
         }
 
         // Обновляем отображение для добавленных устройств
         val addedDevices = devices.filter { it.status == "confirmed" }
-        val addedDevicesAdapter = AddedDevicesAdapter(addedDevices) { device ->
+        val addedDevicesAdapter = AddedDevicesAdapter(addedDevices) { _ ->
         }
-        bindingClass.addedDevicesRecyclerView.adapter = addedDevicesAdapter
+        binding.addedDevicesRecyclerView.adapter = addedDevicesAdapter
     }
 
     private fun handleDeviceAction(device: ChildDevice, isConfirmed: Boolean) {

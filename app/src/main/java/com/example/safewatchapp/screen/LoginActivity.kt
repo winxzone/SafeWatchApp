@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
+import android.widget.CheckBox
 import androidx.appcompat.app.AppCompatActivity
 import com.example.safewatchapp.R
 import com.example.safewatchapp.databinding.LoginBinding
@@ -22,33 +22,43 @@ import java.util.UUID
 
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var bindingClass: LoginBinding
+    private lateinit var binding: LoginBinding
+    private lateinit var checkBoxRemindMe: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupUI()
         setupListeners()
 
+        // Проверка, если пользователь уже вошел
+        if (TokenManager.isRemindMeEnabled(this) && TokenManager.getToken(this) != null) {
+            // Переходим на главный экран, если токен существует и Remind me включен
+            navigateToMainScreen()
+            return
+        }
+
     }
 
     // Метод для начальной настройки интерфейса
     private fun setupUI() {
-        enableEdgeToEdge()
-        bindingClass = LoginBinding.inflate(layoutInflater)
-        setContentView(bindingClass.root)
+        binding = LoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        checkBoxRemindMe = binding.checkboxRemindMe
+        checkBoxRemindMe.isChecked = TokenManager.isRemindMeEnabled(this)
     }
 
     // Метод для установки слушателей кнопок
     private fun setupListeners() {
-        bindingClass.buttonRegistation.setOnClickListener {
+        binding.buttonRegistation.setOnClickListener {
             navigateToRegistration()
         }
 
-        bindingClass.buttonForgotPassword.setOnClickListener {
+        binding.buttonForgotPassword.setOnClickListener {
             navigateToForgotPassword()
         }
 
-        bindingClass.buttonNext.setOnClickListener {
+        binding.buttonNext.setOnClickListener {
             if(validateLogin()){
                 loginUser()
             }
@@ -73,12 +83,13 @@ class LoginActivity : AppCompatActivity() {
 
         if (currentRole == Constants.CHILD) {
             // Переход для ребенка
-            val intent = Intent(this, DeviceVerificationActivity::class.java)
+//            val intent = Intent(this, PermissionsActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         } else {
             // Переход для родителя
-            val intent = Intent(this, DeviceVerificationActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
@@ -88,7 +99,6 @@ class LoginActivity : AppCompatActivity() {
         val token = TokenManager.getToken(this)
 
         if (token == null) {
-            Log.e("DeviceCheck", "Token is missing")
             return
         }
 
@@ -125,6 +135,7 @@ class LoginActivity : AppCompatActivity() {
                         "DeviceCheck",
                         "Failed to fetch devices: ${response.code()} - ${response.message()} - ErrorBody: ${response.errorBody()?.string()}"
                     )
+                    registerDevice(token, deviceName, deviceId)
                 }
             }
             override fun onFailure(call: Call<List<ChildDevice>>, t: Throwable) {
@@ -132,7 +143,6 @@ class LoginActivity : AppCompatActivity() {
             }
         })
     }
-
 
     // Метод для регистрации устройства
     private fun registerDevice(token: String, deviceName: String, deviceId: String) {
@@ -195,7 +205,7 @@ class LoginActivity : AppCompatActivity() {
     private fun validateLogin(): Boolean{
         var isValid = true
 
-        bindingClass.apply{
+        binding.apply{
 
             edEmail.error = null
             edPassword.error = null
@@ -222,10 +232,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginUser() {
-        val email = bindingClass.edEmail.text.toString()
-        val password = bindingClass.edPassword.text.toString()
+        val email = binding.edEmail.text.toString()
+        val password = binding.edPassword.text.toString()
 
-        // Создаём объект UserLogin
         val userLogin = UserLogin(email, password)
 
         ApiClient.apiService.loginUser(userLogin).enqueue(object : Callback<TokenResponse> {
@@ -239,16 +248,17 @@ class LoginActivity : AppCompatActivity() {
                         // Сохраняем токен с помощью TokenManager
                         token?.let {
                             TokenManager.saveToken(applicationContext, it)
+                            TokenManager.saveRemindMe(applicationContext, checkBoxRemindMe.isChecked)
                         }
                         checkDeviceBinding()
                     }
                     response.code() == 404 -> {
                         // Аккаунт не найден
-                        bindingClass.edEmail.error = getString(R.string.error_user_not_found)
+                        binding.edEmail.error = getString(R.string.error_user_not_found)
                     }
                     response.code() == 401 -> {
                         // Неправильный пароль
-                        bindingClass.edPassword.error = getString(R.string.error_invalid_password)
+                        binding.edPassword.error = getString(R.string.error_invalid_password)
                     }
                     else -> {
                         // Другая ошибка

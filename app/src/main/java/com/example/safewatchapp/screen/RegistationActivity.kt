@@ -3,7 +3,6 @@ package com.example.safewatchapp.screen
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.safewatchapp.R
 import com.example.safewatchapp.databinding.RegistationBinding
@@ -15,7 +14,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class RegistationActivity : AppCompatActivity() {
-    private lateinit var bindingClass: RegistationBinding
+    private lateinit var binding: RegistationBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,21 +24,20 @@ class RegistationActivity : AppCompatActivity() {
 
     // Метод для начальной настройки интерфейса
     private fun setupUI() {
-        enableEdgeToEdge()
-        bindingClass = RegistationBinding.inflate(layoutInflater)
-        setContentView(bindingClass.root)
+        binding = RegistationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 
 
     // Метод для установки слушателей кнопок
     private fun setupListeners() {
-        bindingClass.buttonRegister.setOnClickListener {
+        binding.buttonRegister.setOnClickListener {
             if (validateRegistration()) {
                 registerUser()
             }
         }
 
-        bindingClass.backButton?.setOnClickListener {
+        binding.backButton?.setOnClickListener {
             navigateToLogin()
         }
     }
@@ -52,10 +50,12 @@ class RegistationActivity : AppCompatActivity() {
     }
 
     private fun registerUser() {
-        val name = bindingClass.edName.text.toString()
-        val email = bindingClass.edEmail.text.toString()
-        val password = bindingClass.edPassword.text.toString()
-        val confirmPassword = bindingClass.edConfirmPassword.text.toString()
+        val name = binding.edName.text.toString()
+        val email = binding.edEmail.text.toString()
+        val password = binding.edPassword.text.toString()
+        val confirmPassword = binding.edConfirmPassword.text.toString()
+
+        Log.d("Register", "Name: $name, Email: $email, Password: $password, ConfirmPassword: $confirmPassword")
 
         // Создаём объект UserRegistration
         val userRegistration = UserRegistration(name, email, password, confirmPassword)
@@ -73,6 +73,7 @@ class RegistationActivity : AppCompatActivity() {
                     finish()
                 } else {
                     Log.e("Register", "Registration failed: ${response.code()} - ${response.message()}")
+                    Log.e("Register", "Error body: ${response.errorBody()?.string()}")
                 }
             }
 
@@ -85,7 +86,7 @@ class RegistationActivity : AppCompatActivity() {
     private fun validateRegistration(): Boolean {
         var isValid = true
 
-        bindingClass.apply {
+        binding.apply {
             edEmail.error = null
             edName.error = null
             edPassword.error = null
@@ -96,7 +97,7 @@ class RegistationActivity : AppCompatActivity() {
             if (email.isEmpty()) {
                 edEmail.error = getString(R.string.error_empty)
                 isValid = false
-            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            } else if (!isValidEmail(email)) {
                 edEmail.error = getString(R.string.error_invalid_email)
                 isValid = false
             }
@@ -132,5 +133,11 @@ class RegistationActivity : AppCompatActivity() {
             }
         }
         return isValid
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        // Регулярное выражение, которое проверяет, что email имеет хотя бы один символ до и после "@" и хотя бы одну точку в доменной части
+        val emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$"
+        return email.matches(emailPattern.toRegex())
     }
 }
