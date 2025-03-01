@@ -1,18 +1,19 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="8dp"
-    android:background="?android:attr/selectableItemBackground">
-
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="8dp">
+        android:padding="12dp"
+        android:background="?android:attr/selectableItemBackground">
 
+        <!-- Device Info Section -->
         <TextView
             android:id="@+id/deviceName"
             android:layout_width="wrap_content"
@@ -25,25 +26,40 @@
             android:id="@+id/requestTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="Request time: 10:30 AM"
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray" />
+
+        <!-- Buttons Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/rejectButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/cancel"
+                android:textSize="14sp"
+                android:backgroundTint="@color/red"
+                android:textColor="@android:color/white"
+                android:minWidth="80dp" />
+
+            <Button
+                android:id="@+id/confirmButton"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="@string/confirm"
+                android:textSize="14sp"
+                android:backgroundTint="@color/blue_main"
+                android:textColor="@android:color/white"
+                android:minWidth="120dp" />
+        </LinearLayout>
     </LinearLayout>
-
-    <Button
-        android:id="@+id/confirmButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/confirm"
-        android:backgroundTint="@color/blue_main"
-      />
-
-    <Button
-        android:id="@+id/rejectButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/cancel"
-        android:layout_marginStart="4dp"
-        android:backgroundTint="@color/red"
-        />
-</LinearLayout>
+</androidx.cardview.widget.CardView>
