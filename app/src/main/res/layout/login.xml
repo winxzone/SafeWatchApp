@@ -1,130 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/primaryBackgroundBlue"
+    tools:context=".screen.LoginActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-medium"
-        android:text="@string/login_title"
-        android:textSize="28sp"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@color/lightBackgroundBlue"
+        app:cardCornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.237" />
-
-    <EditText
-        android:id="@+id/edEmail"
-        android:layout_width="359dp"
-        android:layout_height="66dp"
-        android:autofillHints="emailAddress"
-        android:background="@drawable/rounded_edittext"
-        android:ems="10"
-        android:hint="@string/email_hint"
-        android:inputType="textEmailAddress"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/edPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.884"
-        android:nextFocusForward="@id/edPassword"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <EditText
-        android:id="@+id/edPassword"
-        android:layout_width="359dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="30dp"
-        android:autofillHints="password"
-        android:background="@drawable/rounded_edittext"
-        android:ems="10"
-        android:hint="@string/password_hint"
-        android:inputType="textPassword"
-        android:nextFocusForward="@id/buttonNext"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/edEmail"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/edEmail"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.46" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="30dp">
 
-    <TextView
-        android:id="@+id/buttonForgotPassword"
-        android:layout_width="175dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="sans-serif-medium"
-        android:padding="14dp"
-        android:text="@string/forgot_password"
-        android:textAlignment="textEnd"
-        android:textColor="@color/blue_main"
-        android:textSize="16sp"
-        android:focusable="false"
-        app:layout_constraintBottom_toTopOf="@+id/buttonNext"
-        app:layout_constraintEnd_toEndOf="@+id/edPassword"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/edPassword"
-        app:layout_constraintTop_toBottomOf="@+id/edPassword"
-        app:layout_constraintVertical_bias="0.0" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/welcome_back"
+                android:textColor="@color/primaryTextBlue"
+                android:textSize="28sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.005" />
 
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/checkboxRemindMe"
-        android:layout_width="175dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="@string/remindme"
-        android:textAlignment="center"
-        android:textColor="@color/blue_main"
-        android:textSize="16sp"
-        android:focusable="false"
-        app:layout_constraintBottom_toTopOf="@+id/buttonNext"
-        app:layout_constraintEnd_toEndOf="@+id/edPassword"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/edPassword"
-        app:layout_constraintTop_toBottomOf="@+id/edPassword"
-        app:layout_constraintVertical_bias="0.0" />
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Авторизуйтесь для входа"
+                android:textColor="@color/secondaryTextBlue"
+                android:fontFamily="sans-serif-medium"
+                app:layout_constraintEnd_toEndOf="@+id/textView"
+                app:layout_constraintStart_toStartOf="@+id/textView"
+                app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <Button
-        android:id="@+id/buttonNext"
-        android:layout_width="386dp"
-        android:layout_height="81dp"
-        android:backgroundTint="@color/blue_main"
-        android:text="@string/login"
-        android:textColor="@color/white"
-        android:textSize="28sp"
-        app:cornerRadius="25dp"
-        android:focusable="false"
-        app:layout_constraintBottom_toTopOf="@+id/buttonRegistation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+            <EditText
+                android:id="@+id/edEmail"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                android:autofillHints="emailAddress"
+                android:background="@drawable/rounded_edittext"
+                android:ems="10"
+                android:textColor="@color/black"
+                android:hint="@string/email_hint"
+                android:inputType="textEmailAddress"
+                android:nextFocusForward="@id/edPassword"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/textView3"
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
-    <TextView
-        android:id="@+id/buttonRegistation"
-        android:layout_width="227dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="116dp"
-        android:focusable="false"
-        android:fontFamily="sans-serif-medium"
-        android:padding="8dp"
-        android:text="@string/registration"
-        android:textAlignment="center"
-        android:textColor="@color/blue_main"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/buttonNext"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="@+id/buttonNext" />
+            <EditText
+                android:id="@+id/edPassword"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                android:autofillHints="password"
+                android:background="@drawable/rounded_edittext"
+                android:ems="10"
+                android:textColor="@color/black"
+                android:hint="@string/password_hint"
+                android:inputType="textPassword"
+                android:nextFocusForward="@id/buttonNext"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="@+id/edEmail"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/textView4"
+                app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+            <TextView
+                android:id="@+id/buttonForgotPassword"
+                android:layout_width="140dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:focusable="false"
+                android:textAlignment="center"
+                android:paddingTop="14dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/forgot_password"
+                android:textColor="@color/primaryTextBlue"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/edPassword"
+                app:layout_constraintTop_toBottomOf="@+id/edPassword" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkboxRemindMe"
+                android:layout_width="140dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:focusable="false"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/remindme"
+                android:textAlignment="center"
+                android:textColor="@color/primaryTextBlue"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@+id/buttonNext"
+                app:layout_constraintStart_toStartOf="@+id/edPassword"
+                app:layout_constraintTop_toBottomOf="@+id/edPassword"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/buttonNext"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:backgroundTint="@color/primaryButtonBlue"
+                android:text="@string/login"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                app:cornerRadius="10dp"
+                android:focusable="false"
+                app:layout_constraintBottom_toTopOf="@+id/buttonRegistation"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/buttonRegistation"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:focusable="false"
+                android:fontFamily="sans-serif-medium"
+                android:padding="10dp"
+                android:text="@string/registration"
+                android:textAlignment="center"
+                android:textColor="@color/primaryTextBlue"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/buttonNext"
+                app:layout_constraintHorizontal_bias="0.496"
+                app:layout_constraintStart_toStartOf="@+id/buttonNext" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="@string/email"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/primaryTextBlue"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textSize="16sp"
+                android:text="@string/password"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/primaryTextBlue"
+                app:layout_constraintBottom_toTopOf="@+id/edPassword"
+                app:layout_constraintEnd_toEndOf="@+id/edEmail"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/edEmail"
+                app:layout_constraintTop_toBottomOf="@+id/edEmail"
+                app:layout_constraintVertical_bias="0.0" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

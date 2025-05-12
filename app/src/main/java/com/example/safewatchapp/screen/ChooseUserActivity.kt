@@ -4,10 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.safewatchapp.R
-import com.example.safewatchapp.utils.Constants
 import com.example.safewatchapp.databinding.ChooseUserBinding
 import com.example.safewatchapp.utils.RoleManager
+import android.widget.Toast
 
+// todo: изменить логику, сделать LauncherActivity, который автоматически будет открывать нужное активити, в зависимости от роли/разрешения
 class ChooseUserActivity : AppCompatActivity() {
     private lateinit var binding: ChooseUserBinding
     private var selectedRole: String? = null
@@ -17,7 +18,7 @@ class ChooseUserActivity : AppCompatActivity() {
 
         val savedRole = RoleManager.getRole(this)
         if (savedRole != null) {
-            navigateToNextScreen()
+            navigateToNextScreen(savedRole)
             finish()
             return
         }
@@ -29,61 +30,57 @@ class ChooseUserActivity : AppCompatActivity() {
         setupListeners()
     }
 
-    // Настройка интерфейса
     private fun setupUI() {
         binding.buttonNext.isEnabled = false
         binding.buttonNext.setBackgroundColor(getColor(R.color.gray))
     }
 
-    // Настройка всех слушателей
     private fun setupListeners() {
-
         binding.cardChild.setOnClickListener {
-            selectRole(Constants.CHILD)
+            selectRole(RoleManager.ROLE_CHILD)
         }
 
         binding.cardParent.setOnClickListener {
-            selectRole(Constants.PARENT)
+            selectRole(RoleManager.ROLE_PARENT)
         }
 
         binding.buttonNext.setOnClickListener {
-            saveRoleToPreferences()
-            navigateToNextScreen()
-            finish()
+            if (selectedRole != null) {
+                saveRoleToPreferences()
+                navigateToNextScreen(selectedRole!!)
+                finish()
+            } else {
+                Toast.makeText(this, "Пожалуйста, выберите роль", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    // Метод для обработки выбора роли
     private fun selectRole(role: String) {
         selectedRole = role
-
-        // Обводка нужной карточки
         when (role) {
-            Constants.CHILD -> {
+            RoleManager.ROLE_CHILD -> {
                 binding.cardChild.strokeColor = getColor(R.color.stroke_color)
                 binding.cardParent.strokeColor = getColor(android.R.color.transparent)
             }
-            Constants.PARENT -> {
+            RoleManager.ROLE_PARENT -> {
                 binding.cardParent.strokeColor = getColor(R.color.stroke_color)
                 binding.cardChild.strokeColor = getColor(android.R.color.transparent)
             }
         }
-
-        // Активируем кнопку "Next"
         binding.buttonNext.isEnabled = true
-        binding.buttonNext.setBackgroundColor(getColor(R.color.blue_main))
+        binding.buttonNext.setBackgroundColor(getColor(R.color.primaryButtonBlue))
     }
 
-    // Сохранение роли в SharedPreferences через RoleManager
     private fun saveRoleToPreferences() {
         selectedRole?.let {
-            RoleManager.saveRole(this, it)  // Сохраняем выбранную роль
+            RoleManager.saveRole(this, it)
+            println("ChooseUserActivity: Role saved = $it")
         }
     }
 
-    // Переход на следующий экран
-    private fun navigateToNextScreen() {
+    private fun navigateToNextScreen(role: String) {
         val intent = Intent(this, LoginActivity::class.java)
+        println("ChooseUserActivity: Navigating to LoginActivity with role = $role")
         startActivity(intent)
     }
 }

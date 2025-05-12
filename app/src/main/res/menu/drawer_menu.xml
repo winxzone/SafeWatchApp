@@ -5,18 +5,12 @@
     >
     <item
         android:id="@+id/menu_confirm_devices"
-        android:icon="@drawable/ic_confirm_devices"
         android:title="@string/device_verification" />
     <item
         android:id="@+id/menu_settings"
-        android:icon="@drawable/ic_settings"
         android:title="@string/settings" />
-    <item
-        android:id="@+id/menu_help"
-        android:icon="@drawable/ic_help"
-        android:title="@string/help" />
+
     <item
         android:id="@+id/menu_logout"
-        android:icon="@drawable/ic_logout"
         android:title="@string/exit" />
 </menu>

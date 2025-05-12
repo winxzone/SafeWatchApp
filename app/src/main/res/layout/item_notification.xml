@@ -1,69 +1,48 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="#FFFFFF"> <!-- Белый фон для уведомлений -->
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="4dp"
+    app:cardElevation="2dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Индикатор прочитанного/непрочитанного -->
-        <View
-            android:id="@+id/statusIndicator"
-            android:layout_width="8dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="8dp"
-            android:background="#4891E0"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Текст заголовка (title) -->
+        <!-- Заголовок уведомления -->
         <TextView
             android:id="@+id/notificationTitle"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#4891E0"
+            android:text="Notification Title"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/statusIndicator"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="@string/title"
-            />
+            android:textColor="@color/primaryTextBlue" />
 
-        <!-- Текст сообщения -->
+        <!-- Описание уведомления -->
         <TextView
-            android:id="@+id/notificationMessage"
-            android:layout_width="0dp"
+            android:id="@+id/notificationDescription"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:textColor="#333333"
+            android:layout_marginTop="4dp"
+            android:text="Notification description goes here. It can be a bit longer."
             android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/notificationTitle"
-            app:layout_constraintStart_toEndOf="@id/statusIndicator"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="@string/message" />
+            android:textColor="#666666" />
 
-        <!-- Дата и время -->
+        <!-- Дата уведомления -->
         <TextView
             android:id="@+id/notificationDate"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#666666"
+            android:layout_marginTop="8dp"
+            android:text="Date: 2025-01-17"
             android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@id/notificationMessage"
-            app:layout_constraintStart_toEndOf="@id/statusIndicator"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="@string/date" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:textColor="#666666" />
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>

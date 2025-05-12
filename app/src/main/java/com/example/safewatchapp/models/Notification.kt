@@ -5,7 +5,8 @@ data class Notification(
     val title: String,
     val message: String,
     val timestamp: Long,
-    val isRead: Boolean,
+    var isRead: Boolean,
     val isDeleted: Boolean,
+    val type: String
 )
 

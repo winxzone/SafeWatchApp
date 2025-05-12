@@ -12,7 +12,7 @@
         android:hint="@string/child_name"
         android:inputType="textCapWords"
         android:autofillHints="name"
-        android:backgroundTint="@color/blue_main"
+        android:backgroundTint="@color/primaryTextBlue"
         android:padding="8dp" />
 
     <TextView

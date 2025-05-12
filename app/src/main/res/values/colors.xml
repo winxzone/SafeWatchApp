@@ -3,7 +3,16 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#A9A9A9</color> <!-- Серый цвет для неактивной кнопки -->
-    <color name="blue_main">#4891E0</color> <!-- Цвет активной кнопки -->
-    <color name="blue_main_radiobtn">#A2C6ED</color>
+
+    <color name="primaryButtonBlue">#3B82F6</color> <!-- Цвет активной кнопки -->
+
+    <color name="lightBackgroundBlue">#E8F7FD</color>
+    <color name="primaryBackgroundBlue">#B9E3F7</color>
+    <color name="primaryTextBlue">#1E40AF</color>
+    <color name="secondaryTextBlue">#6090F0</color>
+    <color name="primaryEditText">#80FFFFFF</color>
+
     <color name="stroke_color">#F98B72</color>
+    <color name="red">#DB3333</color>
+    <color name="transparent">#00000000</color>
 </resources>

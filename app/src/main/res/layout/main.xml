@@ -4,15 +4,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/primaryBackgroundBlue">
 
-    <!-- Основной контент -->
     <LinearLayout
+        android:id="@+id/mainContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:fitsSystemWindows="true">
 
-        <!-- Верхняя панель с кнопкой меню -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -20,165 +21,242 @@
             android:gravity="start"
             android:padding="8dp">
 
-            <ImageButton
-                android:id="@+id/menuButton"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/open_menu"
-                android:src="@drawable/ic_menu"
-                android:padding="8dp" />
+                android:layout_height="58dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="10dp"
+                app:strokeColor="@color/white"
+                app:strokeWidth="1dp">
+
+                <ImageButton
+                    android:id="@+id/menuButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/open_menu"
+                    android:src="@drawable/ic_menu"
+                    android:scaleType="centerInside"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    app:tint="@color/primaryTextBlue"/>
+            </com.google.android.material.card.MaterialCardView>
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
-            <ImageButton
-                android:id="@+id/notificationButton"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/open_menu"
-                android:padding="8dp"
-                android:gravity="end"
-                android:src="@drawable/ic_notification" />
+                android:layout_height="58dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="10dp"
+                app:strokeColor="@color/white"
+                app:strokeWidth="1dp">
+
+                <ImageButton
+                    android:id="@+id/notificationButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/open_menu"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_notification"
+                    app:tint="@color/primaryTextBlue" />
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- Содержимое экрана -->
-        <FrameLayout
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
-            <!-- Отображение при отсутствии устройства ребенка -->
-            <LinearLayout
-                android:id="@+id/noDeviceLayout"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone">
+                android:layout_height="match_parent">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/notice_before_instruction"
-                    android:textSize="18sp"
-                    android:textColor="@android:color/black"
-                    android:layout_marginBottom="16dp" />
+                <androidx.core.widget.NestedScrollView
+                    android:id="@+id/noDeviceLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fillViewport="true"
+                    android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/instruction_title"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:layout_marginBottom="16dp"
-                    android:gravity="center" />
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="24dp"
+                        app:cardBackgroundColor="@android:color/white"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/instruction"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:gravity="start"
-                    android:lineSpacingExtra="4dp"
-                    android:layout_marginBottom="32dp" />
-            </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="24dp">
 
-            <!-- Отображение при наличии устройства ребенка -->
-            <LinearLayout
-                android:id="@+id/childDeviceLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="top"
-                android:visibility="visible">
+                            <com.airbnb.lottie.LottieAnimationView
+                                android:layout_width="300dp"
+                                android:layout_height="300dp"
+                                app:lottie_autoPlay="true"
+                                app:lottie_loop="true"
+                                app:lottie_speed="0.75"
+                                app:lottie_repeatCount="-1"
+                                app:lottie_repeatMode="reverse"
+                                app:lottie_rawRes="@raw/main_activity_animation" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/notice_before_instruction"
+                                android:textSize="20sp"
+                                android:textColor="@color/primaryTextBlue"
+                                android:textStyle="bold"
+                                android:gravity="center"
+                                android:layout_marginBottom="16dp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/instruction_title"
+                                android:textSize="16sp"
+                                android:textColor="#666666"
+                                android:layout_marginBottom="24dp"
+                                android:gravity="center" />
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:cardBackgroundColor="#F8F9FE"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/instruction"
+                                    android:textSize="15sp"
+                                    android:textColor="#2C3E50"
+                                    android:padding="16dp"
+                                    android:lineSpacingExtra="8dp" />
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </androidx.core.widget.NestedScrollView>
 
                 <LinearLayout
+                    android:id="@+id/childDeviceLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="20dp">
-
-                    <ImageView
-                        android:id="@+id/previousButton"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:clickable="true"
-                        android:contentDescription="@string/previous_child"
-                        android:focusable="true"
-                        android:src="@drawable/previousbutton"
-                        android:visibility="visible" />
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/childPhotoImageView"
-                        android:layout_width="200dp"
-                        android:layout_height="200dp"
-                        android:layout_marginHorizontal="16dp"
-                        android:src="@drawable/ic_default_photo"
-                        app:shapeAppearanceOverlay="@style/circular"
-                        android:scaleType="centerCrop"
-                        />
-
-                    <ImageView
-                        android:id="@+id/nextButton"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:clickable="true"
-                        android:contentDescription="@string/next_child"
-                        android:focusable="true"
-                        android:src="@drawable/nextbutton"
-                        android:visibility="visible" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/childNameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="40sp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:text="@string/child_name"
-                    android:textColor="@android:color/black"
-                    android:textSize="27sp" />
-
-                <LinearLayout
-                    android:id="@+id/childInfoLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@android:color/darker_gray"
-                    android:gravity="center"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:gravity="top"
+                    android:visibility="visible">
 
-                    <TextView
-                        android:id="@+id/childInfoPlaceholder"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="В разработке..."
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp" />
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="48dp"
+                            android:layout_height="60dp"
+                            app:cardBackgroundColor="@android:color/white"
+                            app:cardCornerRadius="20dp"
+                            app:strokeColor="@color/white"
+                            app:strokeWidth="1dp">
+
+                            <ImageButton
+                                android:id="@+id/previousButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/open_menu"
+                                android:src="@drawable/ic_arrow"
+                                android:scaleType="centerInside"
+                                android:padding="4dp"
+                                app:tint="@color/primaryTextBlue"/>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/childPhotoImageView"
+                            android:layout_width="200dp"
+                            android:layout_height="200dp"
+                            android:padding="10dp"
+                            android:layout_marginHorizontal="16dp"
+                            android:src="@drawable/ic_default_photo"
+                            app:shapeAppearanceOverlay="@style/circular"
+                            android:scaleType="centerCrop"
+                            app:strokeColor="@color/white"
+                            app:strokeWidth="6dp"/>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="48dp"
+                            android:layout_height="60dp"
+                            app:cardBackgroundColor="@android:color/white"
+                            app:cardCornerRadius="20dp"
+                            app:strokeColor="@color/white"
+                            app:strokeWidth="1dp">
+
+                            <ImageButton
+                                android:id="@+id/nextButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="@string/open_menu"
+                                android:src="@drawable/ic_arrow"
+                                android:scaleType="centerInside"
+                                android:padding="4dp"
+                                android:rotationY="180"
+                                app:tint="@color/primaryTextBlue"/>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/childNameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="@string/child_name"
+                        android:textColor="@color/primaryTextBlue"
+                        android:textSize="28sp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/lightBackgroundBlue"
+                        app:cardCornerRadius="25dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
-            </LinearLayout>
-        </FrameLayout>
+            </FrameLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 
-    <!-- Боковое меню -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
-        app:itemIconTint="@color/transparent"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer_menu" />
-
 
 </androidx.drawerlayout.widget.DrawerLayout>

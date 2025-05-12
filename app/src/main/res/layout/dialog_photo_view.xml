@@ -38,7 +38,7 @@
         android:layout_below="@id/childPhotoDialogImageView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"
-        android:backgroundTint="@color/blue_main"
+        android:backgroundTint="@color/primaryTextBlue"
         android:text="@string/confirm"
         android:textColor="@android:color/white" />
 </RelativeLayout>

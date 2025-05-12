@@ -1,24 +1,23 @@
 package com.example.safewatchapp.screen
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.CheckBox
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.safewatchapp.R
 import com.example.safewatchapp.databinding.LoginBinding
 import com.example.safewatchapp.models.ChildDevice
-import com.example.safewatchapp.models.TokenResponse
 import com.example.safewatchapp.models.UserLogin
-import com.example.safewatchapp.service.ApiClient
-import com.example.safewatchapp.utils.Constants
+import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.utils.RoleManager
 import com.example.safewatchapp.utils.TokenManager
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.util.UUID
+import kotlinx.coroutines.launch
+import com.example.safewatchapp.manager.DeviceManager
+import com.example.safewatchapp.utils.DeviceIdUtils.getDeviceUniqueId
 
 
 class LoginActivity : AppCompatActivity() {
@@ -27,16 +26,9 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("LoginActivity", "onCreate() called")
         setupUI()
         setupListeners()
-
-        // Проверка, если пользователь уже вошел
-        if (TokenManager.isRemindMeEnabled(this) && TokenManager.getToken(this) != null) {
-            // Переходим на главный экран, если токен существует и Remind me включен
-            navigateToMainScreen()
-            return
-        }
-
     }
 
     // Метод для начальной настройки интерфейса
@@ -69,137 +61,216 @@ class LoginActivity : AppCompatActivity() {
     private fun navigateToRegistration() {
         val intent = Intent(this, RegistationActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     // Метод для перехода на экран восстановления пароля
     private fun navigateToForgotPassword() {
         val intent = Intent(this, ForgetPasswordActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
-    // Метод для перехода на главный экран
-    private fun navigateToMainScreen() {
-        val currentRole = RoleManager.getRole(this)
+    private fun navigateToMainActivity(){
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
 
-        if (currentRole == Constants.CHILD) {
-            // Переход для ребенка
-//            val intent = Intent(this, PermissionsActivity::class.java)
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+    private fun navigateToWaitingForConfirmationActivity(deviceId: String?){
+        val intent = Intent(this@LoginActivity, WaitingForConfirmationActivity::class.java)
+        intent.putExtra("deviceId", deviceId)
+        startActivity(intent)
+        finish()
+    }
+
+    // Новая функция для перехода на основе роли
+    private fun navigateByRole(isChild: Boolean, deviceId: String? = null, childProfileId: String? = null) {
+        if (!isChild) {
+            Log.d("Navigation", "👤 Переход на главный экран для родителя")
+            navigateToMainActivity()
+            return
+        }
+
+        // Логика для детского устройства
+        if (!childProfileId.isNullOrEmpty()) {
+            Log.d("Navigation", "✅ Детское устройство с профилем, переход на главный экран")
+             navigateToMainActivity() // ДОЛЖНО БЫТЬ АКТИВИТИ ДЛЯ РЕБЕНКА
+            return
+        }
+
+        // Если профиль ребёнка отсутствует, проверяем статус устройства
+        if (!deviceId.isNullOrEmpty()) {
+            lifecycleScope.launch {
+                try {
+                    val devices = ApiClient.childDeviceApiService.listChildDevice()
+                    val device = devices.find { it.id == deviceId }
+
+                    if (device?.status == "confirmed" && device.childId != null) {
+                        Log.d("Navigation", "✅ Устройство уже подтверждено, переходим на главный экран")
+                        DeviceManager.saveChildProfileId(this@LoginActivity, device.childId)
+                        navigateToMainActivity()
+                    } else {
+                        Log.d("Navigation", "⌛ Устройство не подтверждено, переходим на экран ожидания")
+                        navigateToWaitingForConfirmationActivity(deviceId)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Navigation", "❌ Ошибка при проверке подтверждения устройства: ${e.message}")
+                    navigateToWaitingForConfirmationActivity(deviceId)
+                }
+            }
         } else {
-            // Переход для родителя
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+            Log.e("Navigation", "❌ Нет deviceId для детского устройства")
+            runOnUiThread {
+                Toast.makeText(this@LoginActivity, "Ошибка: ID устройства отсутствует", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun checkDeviceBinding() {
+        // Проверка "Запомнить меня" и токена
+        if (TokenManager.isRemindMeEnabled(this) && TokenManager.getToken(this) != null) {
+            Log.d("DeviceCheck", "✅ RemindMe включён и токен существует")
+            val isChild = RoleManager.isChild(this)
+            if (!isChild) {
+                // Для родителя сразу переходим на главный экран
+                navigateByRole(isChild = false)
+                return
+            }
+            // Для ребёнка проверяем childProfileId
+            val savedChildProfileId = DeviceManager.getChildProfileId(this)
+            if (!savedChildProfileId.isNullOrEmpty()) {
+                // Если childProfileId есть, переходим на главный экран
+                navigateByRole(isChild = true, childProfileId = savedChildProfileId)
+                return
+            }
+            // Если childProfileId нет, продолжаем проверку устройства
+            Log.d("DeviceCheck", "⚠️ RemindMe включён, но childProfileId отсутствует, продолжаем проверку")
+        }
+
         val token = TokenManager.getToken(this)
-
         if (token == null) {
+            Log.d("DeviceCheck", "❌ Token is null")
             return
         }
 
-        val deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
-        val deviceId = getDeviceUniqueId()
-
-        if (!RoleManager.isChild(this)) {
-            navigateToMainScreen()
+        val savedChildProfileId = DeviceManager.getChildProfileId(this)
+        Log.d("DeviceCheck", "📦 Полученный childProfileId из SharedPrefs: $savedChildProfileId")
+        if (!savedChildProfileId.isNullOrEmpty()) {
+            Log.d("DeviceCheck", "✅ Child profile уже сохранен. Переход к главному экрану")
+            navigateByRole(isChild = true, childProfileId = savedChildProfileId)
             return
         }
 
-        ApiClient.apiService.listChildDevice("Bearer $token").enqueue(object : Callback<List<ChildDevice>> {
-            override fun onResponse(call: Call<List<ChildDevice>>, response: Response<List<ChildDevice>>) {
-                if (response.isSuccessful) {
-                    val devices = response.body().orEmpty()
-                    val currentDevice = devices.find { it.deviceId == deviceId && it.status != "cancelled"}
+        val deviceName = "${Build.MANUFACTURER} ${Build.MODEL}"
+        val deviceId = getDeviceUniqueId(this)
+        Log.d("DeviceCheck", "📱 Device Info — Name: $deviceName, ID: $deviceId")
 
-                    when {
-                        currentDevice == null -> {
-                            registerDevice(token, deviceName, deviceId)
+        val isChild = RoleManager.isChild(this)
+        Log.d("DeviceCheck", "🧒 Is child device: $isChild")
+
+        if (!isChild) {
+            Log.d("DeviceCheck", "👤 Не детское устройство. Переход на главный экран.")
+            navigateByRole(isChild = false)
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val devices = ApiClient.childDeviceApiService.listChildDevice()
+                Log.d("DeviceCheck", "📥 Получено устройств: ${devices.size}")
+
+                val currentDevice = devices.find { it.deviceId == deviceId }
+
+                if (currentDevice == null) {
+                    Log.w("DeviceCheck", "📭 Устройство не найдено в списке. Регистрация...")
+                    registerDevice(deviceName, deviceId)
+                    return@launch
+                }
+
+                Log.d("DeviceCheck", "🔍 Найдено устройство: id=${currentDevice.id}, status=${currentDevice.status}, childId=${currentDevice.childId}")
+
+                when (currentDevice.status) {
+                    "unconfirmed" -> {
+                        DeviceManager.saveChildDeviceId(this@LoginActivity, currentDevice.id)
+                        Log.d("DeviceCheck", "💾 Сохранён childDeviceId: ${currentDevice.id}")
+                        navigateByRole(isChild = true, deviceId = currentDevice.id)
+                    }
+
+                    "confirmed" -> {
+                        val childDeviceId = currentDevice.id
+                        val childProfileId = currentDevice.childId
+
+                        if (!childDeviceId.isNullOrEmpty()) {
+                            DeviceManager.saveChildDeviceId(this@LoginActivity, childDeviceId)
+                            Log.d("DeviceCheck", "💾 Сохранён childDeviceId: $childDeviceId")
                         }
-                        currentDevice.status == "unconfirmed" -> {
-                            registerDevice(token, deviceName, deviceId)
-                        }
-                        currentDevice.status == "confirmed" -> {
-                            navigateToMainScreen()
-                        }
-                        else -> {
-                            Log.d("DeviceCheck", "Unknown device status: ${currentDevice.status}")
+
+                        if (!childProfileId.isNullOrEmpty()) {
+                            DeviceManager.saveChildProfileId(this@LoginActivity, childProfileId)
+                            Log.d("DeviceCheck", "💾 Сохранён childProfileId: $childProfileId")
+                            navigateByRole(isChild = true, childProfileId = childProfileId)
+                        } else {
+                            Log.d("DeviceCheck", "⚠️ Устройство подтверждено, но профиль ребёнка отсутствует.")
+                            navigateByRole(isChild = true, deviceId = childDeviceId ?: "")
                         }
                     }
-                } else {
-                    Log.e(
-                        "DeviceCheck",
-                        "Failed to fetch devices: ${response.code()} - ${response.message()} - ErrorBody: ${response.errorBody()?.string()}"
-                    )
-                    registerDevice(token, deviceName, deviceId)
+
+                    else -> {
+                        Log.w("DeviceCheck", "⚠️ Неизвестный статус: ${currentDevice.status}")
+                    }
                 }
+
+            } catch (e: Exception) {
+                Log.e("DeviceCheck", "❌ Ошибка при проверке устройств: ${e.message}")
+                registerDevice(deviceName, deviceId)
             }
-            override fun onFailure(call: Call<List<ChildDevice>>, t: Throwable) {
-                Log.e("DeviceCheck", "Network error while fetching devices: ${t.message}")
-            }
-        })
+        }
     }
 
     // Метод для регистрации устройства
-    private fun registerDevice(token: String, deviceName: String, deviceId: String) {
-
+    private fun registerDevice(deviceName: String, deviceId: String) {
         val newDevice = ChildDevice(
             name = deviceName,
             deviceId = deviceId,
             id = null,
-            accountId = null,
+            userId = null,
             childId = null,
             status = "unconfirmed",
             createdAt = System.currentTimeMillis(),
             confirmedAt = null
         )
 
-        ApiClient.apiService.registerChildDevice(newDevice, "Bearer $token").enqueue(object : Callback<ChildDevice> {
-            override fun onResponse(call: Call<ChildDevice>, response: Response<ChildDevice>) {
-
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.childDeviceApiService.registerChildDevice(newDevice)
                 if (response.isSuccessful) {
-                    Log.d("DeviceRegister", "Device registered successfully: $deviceName")
-                    navigateToMainScreen()
+                    val savedDevice = response.body()
+                    savedDevice?.id?.let { id ->
+                        DeviceManager.saveChildDeviceId(this@LoginActivity, id)
+                        Log.d("DeviceRegister", "✅ Устройство зарегистрировано и сохранено: $id")
+                        navigateByRole(isChild = true, deviceId = id)
+                    } ?: run {
+                        Log.e("DeviceRegister", "❌ ID устройства не получен в ответе")
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity, "Ошибка регистрации устройства", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 } else {
-                    Log.e(
-                        "DeviceRegister",
-                        "Failed to register device: ${response.code()} - ${response.message()} - ErrorBody: ${response.errorBody()?.string()}"
-                    )
+                    Log.e("DeviceRegister", "❌ Ошибка регистрации: ${response.code()}")
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity, "Не удалось зарегистрировать устройство", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DeviceRegister", "❌ Ошибка при регистрации устройства: ${e.message}")
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity, "Ошибка сети при регистрации", Toast.LENGTH_SHORT).show()
                 }
             }
-            override fun onFailure(call: Call<ChildDevice>, t: Throwable) {
-                Log.e("DeviceRegister", "Network error while registering device: ${t.message}")
-            }
-        })
-    }
-
-    // Получение уникального идентификатора устройства
-    private fun getDeviceUniqueId(): String {
-        val sharedPreferences = getSharedPreferences("DevicePrefs", MODE_PRIVATE)
-        val uniqueIdKey = "UNIQUE_DEVICE_ID"
-
-        var uniqueId = sharedPreferences.getString(uniqueIdKey, null)
-
-        if (uniqueId == null) {
-            uniqueId = try {
-                val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
-                Log.d("DeviceUniqueId", "ANDROID_ID fetched: $androidId")
-                androidId ?: UUID.randomUUID().toString()
-            } catch (e: Exception) {
-                Log.e("DeviceUniqueId", "Error fetching ANDROID_ID: ${e.message}")
-                UUID.randomUUID().toString()
-            }
-            sharedPreferences.edit().putString(uniqueIdKey, uniqueId).apply()
-            Log.d("DeviceUniqueId", "Unique ID saved to SharedPreferences: $uniqueId")
         }
-
-        return uniqueId ?: UUID.randomUUID().toString()
     }
-
 
     // Валидация экрана логина
     private fun validateLogin(): Boolean{
@@ -234,41 +305,44 @@ class LoginActivity : AppCompatActivity() {
     private fun loginUser() {
         val email = binding.edEmail.text.toString()
         val password = binding.edPassword.text.toString()
-
         val userLogin = UserLogin(email, password)
 
-        ApiClient.apiService.loginUser(userLogin).enqueue(object : Callback<TokenResponse> {
-            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
-                when {
-                    response.isSuccessful -> {
-                        // Успешный логин
-                        val token = response.body()?.token
-                        Log.d("Login", "Login successful: Token: $token")
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.authApiService.loginUser(userLogin)
+                if (response.isSuccessful) {
+                    val token = response.body()?.token
+                    Log.d("Login", "Login successful: Token: $token")
 
-                        // Сохраняем токен с помощью TokenManager
-                        token?.let {
-                            TokenManager.saveToken(applicationContext, it)
-                            TokenManager.saveRemindMe(applicationContext, checkBoxRemindMe.isChecked)
+                    // Сохраняем токен с помощью TokenManager
+                    token?.let {
+                        TokenManager.saveToken(applicationContext, it)
+                        TokenManager.saveRemindMe(applicationContext, binding.checkboxRemindMe.isChecked)
+
+                        if (TokenManager.getToken(applicationContext) != null) {
+                            checkDeviceBinding()
+                        } else {
+                            Log.e("Login", "Token was not properly saved")
+                            Toast.makeText(this@LoginActivity, "Ошибка сохранения сессии", Toast.LENGTH_SHORT).show()
                         }
-                        checkDeviceBinding()
+                    } ?: run {
+                        Log.e("Login", "Token is null in response")
+                        Toast.makeText(this@LoginActivity, "Не удалось войти: нет токена", Toast.LENGTH_SHORT).show()
                     }
-                    response.code() == 404 -> {
-                        // Аккаунт не найден
-                        binding.edEmail.error = getString(R.string.error_user_not_found)
-                    }
-                    response.code() == 401 -> {
-                        // Неправильный пароль
-                        binding.edPassword.error = getString(R.string.error_invalid_password)
-                    }
-                    else -> {
-                        // Другая ошибка
-                        Log.e("Login", "Login failed: ${response.code()} - ${response.message()}")
+                } else {
+                    when (response.code()) {
+                        404 -> binding.edEmail.error = getString(R.string.error_user_not_found)
+                        401 -> binding.edPassword.error = getString(R.string.error_invalid_password)
+                        else -> {
+                            Log.e("Login", "Login failed: ${response.code()} - ${response.message()}")
+                            Toast.makeText(this@LoginActivity, "Login failed: ${response.message()}", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("Login", "Network error: ${e.message}")
+                Toast.makeText(this@LoginActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                Log.e("Login", "Network error: ${t.message}")
-            }
-        })
+        }
     }
 }

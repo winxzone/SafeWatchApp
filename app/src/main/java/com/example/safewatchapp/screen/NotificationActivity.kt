@@ -1,48 +1,89 @@
 package com.example.safewatchapp.screen
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.safewatchapp.adapters.NotificationAdapter
+import com.example.safewatchapp.screen.adapter.NotificationAdapter
 import com.example.safewatchapp.databinding.ActivityNotificationBinding
+import com.example.safewatchapp.databinding.DialogDeleteObjectBinding
 import com.example.safewatchapp.models.Notification
-import com.example.safewatchapp.service.ApiClient
+import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.utils.NotificationDiffUtil
 import com.example.safewatchapp.utils.TokenManager
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 
 class NotificationActivity : AppCompatActivity() {
 
-    private lateinit var bindingClass: ActivityNotificationBinding
-    private lateinit var adapter: NotificationAdapter
-
+    private lateinit var binding: ActivityNotificationBinding
     private val notifications = mutableListOf<Notification>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bindingClass = ActivityNotificationBinding.inflate(layoutInflater)
-        setContentView(bindingClass.root)
+        binding = ActivityNotificationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        enableEdgeToEdge()
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         setupRecyclerView()
         setupSwipeToDelete()
+        setupListeners()
         fetchNotifications()
     }
 
+    private fun setupListeners() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            fetchNotifications()
+        }
+
+        binding.backButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
     private fun setupRecyclerView() {
-        adapter = NotificationAdapter(notifications)
-        bindingClass.notificationRecyclerView.apply {
+        val adapter = NotificationAdapter(notifications) { notification ->
+            handleNotificationClick(notification)
+        }
+        binding.notificationRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@NotificationActivity)
-            adapter = this@NotificationActivity.adapter
+            this.adapter = adapter
+        }
+    }
+
+    private fun handleNotificationClick(notification: Notification) {
+        when (notification.type) {
+            "device_verification" -> {
+                val intent = Intent(this, DeviceVerificationActivity::class.java)
+                startActivity(intent)
+            }
+            "other_notification" -> {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
+            else -> {
+                showToast("Unknown notification type")
+            }
         }
     }
 
     private fun setupSwipeToDelete() {
-        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -51,63 +92,81 @@ class NotificationActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                val notification = notifications[position]
-                deleteNotification(notification.id, position)
+                if (position != RecyclerView.NO_POSITION) {
+                    val removed = notifications.removeAt(position)
+
+                    binding.notificationRecyclerView.adapter?.notifyItemRemoved(position)
+
+                    showDeleteNotificationBottomSheet(removed, position)
+                }
+            }
+
+            override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+                return 0.1f // коф. перемещения
             }
         })
-        itemTouchHelper.attachToRecyclerView(bindingClass.notificationRecyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.notificationRecyclerView)
     }
+
+    private fun showDeleteNotificationBottomSheet(notification: Notification, position: Int) {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val bindingSheet = DialogDeleteObjectBinding.inflate(layoutInflater)
+
+        bindingSheet.dialogTitleTextView.text = "Удалить уведомление?"
+        bindingSheet.deviceNameTextView.text = notification.title
+
+        bindingSheet.btnConfirmDelete.text = "Удалить"
+        bindingSheet.btnConfirmDelete.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            deleteNotification(notification.id) // Удаляем на сервере
+        }
+
+        bindingSheet.btnCancelDelete.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            // Возвращаем уведомление обратно в список
+            notifications.add(position, notification)
+            binding.notificationRecyclerView.adapter?.notifyItemInserted(position)
+        }
+
+        bottomSheetDialog.setContentView(bindingSheet.root)
+        bottomSheetDialog.show()
+    }
+
 
     private fun fetchNotifications() {
-        val token = getTokenOrShowError() ?: return
+        getTokenOrShowError() ?: return
 
-        ApiClient.apiService.getNotifications("Bearer $token")
-            .enqueue(object : Callback<List<Notification>> {
-                override fun onResponse(call: Call<List<Notification>>, response: Response<List<Notification>>) {
-                    if (response.isSuccessful) {
-                        val notificationsFromServer = response.body().orEmpty()
-
-                        updateNotificationsList(notificationsFromServer)
-                    } else {
-                        showToast("Failed to load notifications")
-                    }
-                }
-
-                override fun onFailure(call: Call<List<Notification>>, t: Throwable) {
-                    showToast("Error: ${t.message}")
-                }
-            })
-    }
-
-    private fun deleteNotification(notificationId: String, position: Int) {
-        val token = getTokenOrShowError() ?: return
-
-        ApiClient.apiService.deleteNotification("Bearer $token", notificationId)
-            .enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    if (response.isSuccessful) {
-                        notifications.removeAt(position)
-                        adapter.notifyItemRemoved(position)
-                        showToast("Notification deleted")
-                    } else {
-                        adapter.notifyItemChanged(position)
-                    }
-                }
-
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    showToast("Error: ${t.message}")
-                    adapter.notifyItemChanged(position)
-                }
-            })
-    }
-
-    private fun getTokenOrShowError(): String? {
-        val token = TokenManager.getToken(this)
-        if (token.isNullOrEmpty()) {
-            showToast("No token found. Please log in.")
-            return null
+        lifecycleScope.launch {
+            try {
+                binding.swipeRefreshLayout.isRefreshing = true
+                val notificationsFromServer = ApiClient.notificationApiService.getNotifications()
+                binding.swipeRefreshLayout.isRefreshing = false
+                
+                updateNotificationsList(notificationsFromServer)
+                toggleEmptyState(notificationsFromServer.isEmpty())
+            } catch (e: Exception) {
+                binding.swipeRefreshLayout.isRefreshing = false
+                showToast("Error: ${e.message}")
+                toggleEmptyState(true)
+            }
         }
-        return token
+    }
+
+    private fun deleteNotification(notificationId: String) {
+        getTokenOrShowError() ?: return
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.notificationApiService.deleteNotification(notificationId)
+                if (response.isSuccessful) {
+                    Log.d("NotificationActivity", "Notification $notificationId deleted successfully")
+                } else {
+                    showToast("Server Error: ${response.code()} - ${response.message()}")
+                }
+            } catch (e: Exception) {
+                showToast("Error: ${e.message}")
+            }
+        }
     }
 
     private fun updateNotificationsList(newNotifications: List<Notification>) {
@@ -115,7 +174,21 @@ class NotificationActivity : AppCompatActivity() {
         val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffUtil)
         notifications.clear()
         notifications.addAll(newNotifications)
-        diffResult.dispatchUpdatesTo(adapter)
+        diffResult.dispatchUpdatesTo(binding.notificationRecyclerView.adapter as NotificationAdapter)
+    }
+
+    private fun toggleEmptyState(isEmpty: Boolean) {
+        binding.notificationRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.emptyAnimation.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.noNotificationsText.visibility = if (isEmpty) View.VISIBLE else View.GONE
+    }
+
+    private fun getTokenOrShowError(): String? {
+        val token = TokenManager.getToken(this)
+        if (token.isNullOrEmpty()) {
+            return null
+        }
+        return token
     }
 
     private fun showToast(message: String) {

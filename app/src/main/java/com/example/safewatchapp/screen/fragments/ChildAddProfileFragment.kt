@@ -15,15 +15,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.safewatchapp.databinding.FragmentAddChildProfileBinding
 import com.example.safewatchapp.screen.MainActivity
-import com.example.safewatchapp.viewmodels.ChildProfileViewModel
+import com.example.safewatchapp.viewmodels.CreateChildProfileViewModel
 import java.io.File
 import com.example.safewatchapp.utils.Result
 
 class ChildAddProfileFragment : Fragment() {
 
-    private lateinit var binding: FragmentAddChildProfileBinding
+    private var _binding: FragmentAddChildProfileBinding? = null
+    private val binding get() = _binding ?: throw IllegalStateException("Binding is null")
     private var selectedImageUri: Uri? = null
-    private val viewModel: ChildProfileViewModel by viewModels()
+    private val viewModel: CreateChildProfileViewModel by viewModels()
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -45,47 +46,49 @@ class ChildAddProfileFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAddChildProfileBinding.inflate(inflater, container, false)
-        savedInstanceState?.let {
-            selectedImageUri = it.getParcelable("selectedImageUri")
-            selectedImageUri?.let { uri ->
-                binding.avatarImageView.setImageURI(uri)
-            }
-        }
+        _binding = FragmentAddChildProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // todo почему cameraIcon? изменить название
         binding.cameraIcon.setOnClickListener { showImagePickerDialog() }
         binding.confirmButton.setOnClickListener { saveChildProfile() }
 
         observeViewModel()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable("selectedImageUri", selectedImageUri)
-    }
-
     private fun observeViewModel() {
         viewModel.childCreationStatus.observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Result.Success -> {
-                    Toast.makeText(requireContext(), "Профиль создан и устройство привязано", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(requireContext(), MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    val childId = result.data
+
+                    // Можно также передать результат другим фрагментам
+                    parentFragmentManager.setFragmentResult(
+                        "childProfileAdded",
+                        Bundle().apply { putString("childId", childId) }
+                    )
+
+                    // Навигация на главный экран
+                    val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
                     startActivity(intent)
                     requireActivity().finish()
                 }
+
                 is Result.Error -> {
                     Toast.makeText(requireContext(), result.message, Toast.LENGTH_LONG).show()
                 }
+
+                else -> {}
             }
         }
     }
-    // todo:
+
     private fun showImagePickerDialog() {
         val options = arrayOf("Сделать фото", "Выбрать из галереи")
         AlertDialog.Builder(requireContext())
@@ -122,11 +125,13 @@ class ChildAddProfileFragment : Fragment() {
             return
         }
 
-        if (deviceId == null) {
-            Toast.makeText(requireContext(), "Ошибка: ID устройства отсутствует", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (deviceId == null) return
 
         viewModel.createChildProfile(name, selectedImageUri, requireContext(), deviceId)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

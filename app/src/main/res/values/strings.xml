@@ -1,18 +1,22 @@
 <resources>
     <string name="app_name">SafeWatchApp</string>
-    <string name="user_selection_label">Кто использует это устройство?</string>
+    <string name="user_selection_label">Выберите устройство</string>
     <string name="button_next">Далее</string>
     <string name="child">Ребёнок</string>
     <string name="parent">Родитель</string>
-    <string name="login_title">Войти</string>
+    <string name="email">Почта</string>
+    <string name="password">Пароль</string>
+    <string name="confirm_password">Подтверждение пароля</string>
+    <string name="welcome_back">С возвращением!</string>
     <string name="login">Войти</string>
-    <string name="email_hint">Почта</string>
+    <string name="name">Имя*</string>
+    <string name="email_hint">Введите вашу почту</string>
     <string name="password_hint">Пароль</string>
     <string name="password_repeat_hint">Повторите пароль</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="registration">Регистрация</string>
     <string name="registation_title">Регистрация</string>
-    <string name="name_hint">Имя</string>
+    <string name="name_hint">Введите имя</string>
     <string name="confirmation_of_policy_rules">Я подтверждаю правила <a href="policy_rules">Политики конфиденциальности</a></string>
     <string name="register">Зарегистрироваться</string>
     <string name="recovery_password">Восстановление пароля</string>
@@ -26,7 +30,39 @@
     <string name="error_user_not_found">Пользователь не найден</string>
     <string name="error_invalid_password">Некорректный пароль</string>
     <string name="error_passwords_do_not_match">Пароли не совпадают</string>
-
-
-
+    <string name="device_verification">Устройства</string>
+    <string name="back_button_description">Назад</string>
+    <string name="new_devices">Новые устройства</string>
+    <string name="added_devices">Связанные устройства</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="cancel">Отменить</string>
+    <string name="date">Дата</string>
+    <string name="default_name">Имя Ребенка</string>
+    <string name="next_child">Next child</string>
+    <string name="previous_child">Previous child</string>
+    <string name="instruction">1. Установите это приложение на устройство ребенка.\n2. Выберите в меню \'Ребенок\'.\n3. Залогиньтесь под своими данными.\n4. Обновите страницу.</string>
+    <string name="instruction_title">Чтобы добавить устройство, следуйте инструкциям в приложении.</string>
+    <string name="notice_before_instruction">У вас не добавлено ниодного устройство ребенка</string>
+    <string name="open_menu">Open menu</string>
+    <string name="child_name">Имя</string>
+    <string name="notifications">Уведомления</string>
+    <string name="title">Заголовок</string>
+    <string name="message">Сообщение</string>
+    <string name="edit_child_name">Редактировать имя ребенка</string>
+    <string name="save">Сохранить</string>
+    <string name="error_empty_name">Имя не может быть пустым</string>
+    <string name="no_notifications">Нет уведомлений</string>
+    <string name="select_profile">Выберите профиль</string>
+    <string name="add_new_profile">Создать новый профиль</string>
+    <string name="no_profiles_found">Профили не найдены. Пожалуйста, добавьте новый профиль.</string>
+    <string name="child_photo">Фото ребенка</string>
+    <string name="remindme">Запомнить меня</string>
+    <string name="change_image">Изменить изображение</string>
+    <string name="settings">Настройки</string>
+    <string name="help">Помощь</string>
+    <string name="exit">Выход</string>
+    <string name="no_new_devices">Нет новых устройств</string>
+    <string name="currently_no_devices_awaiting_approval">На данный момент нет устройств, ожидающих подтверждения</string>
+    <string name="no_devices_added">Нет добавленных устройств</string>
+    <string name="currently_no_associated_devices">На данный момент нет связаных устройств</string>
 </resources>

@@ -2,7 +2,7 @@ package com.example.safewatchapp.models
 
 data class ChildDevice(
     val id: String?,
-    val accountId: String?,
+    val userId: String?,
     val childId: String?,
     val name: String,
     val deviceId: String,

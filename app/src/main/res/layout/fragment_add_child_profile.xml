@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <!-- Заголовок -->
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Создание профиля ребенка"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp"/>
+
+    <!-- Фото аватара -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/avatarImageView"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_default_photo"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="24dp"
+        app:shapeAppearanceOverlay="@style/circular"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:backgroundTint="@color/gray"
+        android:contentDescription="Аватар ребенка"/>
+
+    <!-- Иконка камеры поверх аватара -->
+    <ImageView
+        android:id="@+id/cameraIcon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_editing"
+        android:background="@drawable/circle_background"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/avatarImageView"
+        app:layout_constraintEnd_toEndOf="@id/avatarImageView"
+        android:layout_margin="4dp"/>
+
+    <!-- Поле ввода имени -->
+    <EditText
+        android:id="@+id/childNameEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Введите имя ребенка"
+        android:padding="16dp"
+        android:background="@drawable/rounded_edittext"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/avatarImageView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"/>
+
+    <!-- Кнопка подтверждения -->
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="match_parent"
+        android:layout_height="63dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/primaryTextBlue"
+        android:text="Сохранить"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/childNameEditText" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

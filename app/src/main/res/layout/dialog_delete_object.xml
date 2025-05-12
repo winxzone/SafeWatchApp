@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <!-- Заголовок -->
+    <TextView
+        android:id="@+id/dialogTitleTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Удалить устройство"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/primaryTextBlue"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Имя устройства -->
+    <TextView
+        android:id="@+id/deviceNameTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Xiaomi Redmi Note 12"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/dialogTitleTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Кнопка подтверждения удаления -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmDelete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Удалить"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/red"
+        app:cornerRadius="16dp"
+        android:textAllCaps="false"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/deviceNameTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Кнопка отмены -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelDelete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Отмена"
+        android:textColor="@android:color/black"
+        app:backgroundTint="@android:color/darker_gray"
+        app:cornerRadius="16dp"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/btnConfirmDelete"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

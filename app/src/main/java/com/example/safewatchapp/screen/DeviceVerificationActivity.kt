@@ -1,8 +1,10 @@
 package com.example.safewatchapp.screen
 
-import android.content.Intent
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -20,6 +22,13 @@ class DeviceVerificationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DeviceVerificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        enableEdgeToEdge()
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         setupViewPager()
         setupListeners()
@@ -45,10 +54,7 @@ class DeviceVerificationActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.backButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 

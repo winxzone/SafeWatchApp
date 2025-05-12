@@ -2,64 +2,83 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    android:layout_margin="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:background="?android:attr/selectableItemBackground">
+        android:padding="16dp">
 
-        <!-- Device Info Section -->
-        <TextView
-            android:id="@+id/deviceName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Device Name"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/requestTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Request time: 10:30 AM"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
-
-        <!-- Buttons Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_phone"
+                app:tint="@color/primaryTextBlue"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="12dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/deviceName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="iPhone 13 Pro"
+                    android:textColor="@color/primaryTextBlue"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/requestTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Request time: 10:30 AM"
+                    android:textSize="14sp"
+                    android:textColor="#666666" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/rejectButton"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:id="@+id/approveButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
                 android:layout_marginEnd="8dp"
-                android:text="@string/cancel"
-                android:textSize="14sp"
-                android:backgroundTint="@color/red"
-                android:textColor="@android:color/white"
-                android:minWidth="80dp" />
+                android:text="Approve"
+                android:textAllCaps="false"
+                android:backgroundTint="#1a73e8"
+                android:textColor="#FFFFFF"
+                app:cornerRadius="8dp" />
 
             <Button
-                android:id="@+id/confirmButton"
+                android:id="@+id/declineButton"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="@string/confirm"
-                android:textSize="14sp"
-                android:backgroundTint="@color/blue_main"
-                android:textColor="@android:color/white"
-                android:minWidth="120dp" />
+                android:text="Decline"
+                android:textAllCaps="false"
+                android:backgroundTint="#f1f3f4"
+                android:textColor="#000000"
+                app:cornerRadius="8dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -4,25 +4,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.safewatchapp.R
+import com.example.safewatchapp.databinding.DialogDeleteObjectBinding
 import com.example.safewatchapp.databinding.FragmentAddedDevicesBinding
+import com.example.safewatchapp.databinding.ItemAddedDeviceBinding
+import com.example.safewatchapp.manager.ChildManager
 import com.example.safewatchapp.models.ChildDevice
-import com.example.safewatchapp.service.ApiClient
+import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.utils.TimeFormatter
 import com.example.safewatchapp.utils.TokenManager
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 
 class AddedDevicesFragment : Fragment() {
 
     private var _binding: FragmentAddedDevicesBinding? = null
     private val binding get() = _binding!!
+    private lateinit var adapter: DeviceAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,47 +37,48 @@ class AddedDevicesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.addedDevicesRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        adapter = DeviceAdapter(emptyList())
+        binding.addedDevicesRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = this@AddedDevicesFragment.adapter
+        }
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            listChildDevices()
+        }
+
         listChildDevices()
     }
 
     private fun listChildDevices() {
-        val token = TokenManager.getToken(requireContext()) ?: run {
+        val token = TokenManager.getToken(requireContext())
+        if (token == null) {
             showToast("Authentication error: Token is missing")
+            binding.swipeRefreshLayout.isRefreshing = false
             return
         }
 
-        ApiClient.childDeviceApiService.listChildDevice("Bearer $token").enqueue(object : Callback<List<ChildDevice>> {
-            override fun onResponse(call: Call<List<ChildDevice>>, response: Response<List<ChildDevice>>) {
-                if (response.isSuccessful) {
-                    val devices = response.body()?.filter { it.status == "confirmed" } ?: emptyList()
-                    updateRecyclerView(devices)
-                } else {
-                    showToast("Failed to load devices: ${response.message()}")
-                }
-            }
+        binding.swipeRefreshLayout.isRefreshing = true
 
-            override fun onFailure(call: Call<List<ChildDevice>>, t: Throwable) {
-                showToast("Network error: ${t.message}")
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val devices = ApiClient.childDeviceApiService.listChildDevice()
+                val confirmedDevices = devices.filter { it.status == "confirmed" }
+                adapter.updateData(confirmedDevices)
+
+                updateEmptyState(confirmedDevices)
+            } catch (e: Exception) {
+                Log.e("AddedDevicesFragment", "Error loading devices: ${e.message}")
+                adapter.updateData(emptyList())
+                updateEmptyState(emptyList())
+            } finally {
+                binding.swipeRefreshLayout.isRefreshing = false
             }
-        })
+        }
     }
 
-    private fun updateRecyclerView(devices: List<ChildDevice>) {
-        val adapter = object : RecyclerView.Adapter<DeviceViewHolder>() {
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceViewHolder {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_added_device, parent, false)
-                return DeviceViewHolder(view)
-            }
-
-            override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
-                holder.bind(devices[position])
-            }
-
-            override fun getItemCount(): Int = devices.size
-        }
-        binding.addedDevicesRecyclerView.adapter = adapter
-
+    private fun updateEmptyState(devices: List<ChildDevice>) {
         if (devices.isEmpty()) {
             binding.emptyStateCard.visibility = View.VISIBLE
             binding.addedDevicesRecyclerView.visibility = View.GONE
@@ -84,17 +88,93 @@ class AddedDevicesFragment : Fragment() {
         }
     }
 
-    private inner class DeviceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val deviceName: TextView = itemView.findViewById(R.id.deviceName)
-        private val confirmedTime: TextView = itemView.findViewById(R.id.confirmedTime)
+    private inner class DeviceAdapter(private var devices: List<ChildDevice>) :
+        RecyclerView.Adapter<DeviceAdapter.DeviceViewHolder>() {
 
-        fun bind(device: ChildDevice) {
-            deviceName.text = device.name
-            confirmedTime.text = TimeFormatter.formatDateTime(device.createdAt ?: 0L)
+        private var selectedPosition: Int = RecyclerView.NO_POSITION
 
-            itemView.setOnClickListener {
-                showToast("Clicked on ${device.name}")
-                // Добавить возможность отвязывать устройство ребенка
+        inner class DeviceViewHolder(private val binding: ItemAddedDeviceBinding) :
+            RecyclerView.ViewHolder(binding.root) {
+
+            fun bind(device: ChildDevice, position: Int) {
+                binding.deviceName.text = device.name
+                binding.confirmedTime.text = TimeFormatter.formatDateTime(device.createdAt)
+
+                // Показываем или скрываем кнопку удаления
+                binding.btnDeleteDevice.visibility = if (position == selectedPosition) View.VISIBLE else View.GONE
+
+                binding.root.setOnClickListener {
+                    if (selectedPosition == position) {
+                        selectedPosition = RecyclerView.NO_POSITION
+                    } else {
+                        selectedPosition = position
+                    }
+                    notifyDataSetChanged()
+                }
+
+                binding.btnDeleteDevice.setOnClickListener {
+                    showDeleteConfirmationDialog(device)
+                }
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val binding = ItemAddedDeviceBinding.inflate(inflater, parent, false)
+            return DeviceViewHolder(binding)
+        }
+
+        override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
+            holder.bind(devices[position], position)
+        }
+
+        override fun getItemCount(): Int = devices.size
+
+        fun updateData(newDevices: List<ChildDevice>) {
+            devices = newDevices
+            selectedPosition = RecyclerView.NO_POSITION
+            notifyDataSetChanged()
+        }
+
+        private fun showDeleteConfirmationDialog(device: ChildDevice) {
+            val bottomSheetDialog = BottomSheetDialog(requireContext())
+
+            val binding = DialogDeleteObjectBinding.inflate(layoutInflater)
+
+            binding.deviceNameTextView.text = device.name
+
+            binding.btnConfirmDelete.setOnClickListener {
+                bottomSheetDialog.dismiss()
+                deleteDevice(device)
+            }
+
+            binding.btnCancelDelete.setOnClickListener {
+                bottomSheetDialog.dismiss()
+            }
+
+            bottomSheetDialog.setContentView(binding.root)
+            bottomSheetDialog.show()
+        }
+
+        private fun deleteDevice(device: ChildDevice) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val response = ApiClient.deviceLinkApiService.deleteDeviceAndChild(device.id!!)
+                    if (response.isSuccessful) {
+                        showToast("Устройство удалено")
+
+                        device.childId?.let { childId ->
+                            ChildManager(requireContext()).removeChildFromCache(childId)
+                        }
+
+                        listChildDevices()
+                    } else {
+                        showToast("Ошибка удаления: ${response.message()}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("AddedDevicesFragment", "Ошибка удаления устройства: ${e.message}")
+                    showToast("Ошибка удаления: ${e.message}")
+                }
             }
         }
     }
