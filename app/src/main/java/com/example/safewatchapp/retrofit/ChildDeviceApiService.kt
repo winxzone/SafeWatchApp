@@ -18,12 +18,12 @@ interface ChildDeviceApiService {
         @Body childDevice: ChildDevice,
     ): Response<ChildDevice>
 
-    @POST("child-device/confirm/{deviceId}")
+    @POST("child-device/confirm/{childDeviceId}")
     suspend fun confirmChildDevice(
         @Path("childDeviceId") childDeviceId: String
     ): Response<Unit>
 
-    @DELETE("child-device/cancel/{deviceId}")
+    @DELETE("child-device/cancel/{childDeviceId}")
     suspend fun cancelChildDevice(
         @Path("childDeviceId") childDeviceId: String
     ): Response<Unit>

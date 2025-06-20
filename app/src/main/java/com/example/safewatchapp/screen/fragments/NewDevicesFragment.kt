@@ -15,7 +15,6 @@ import com.example.safewatchapp.databinding.ItemNewDeviceBinding
 import com.example.safewatchapp.models.ChildDevice
 import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.utils.TimeFormatter
-import com.example.safewatchapp.utils.TokenManager
 import kotlinx.coroutines.launch
 
 class NewDevicesFragment : Fragment() {
@@ -58,13 +57,6 @@ class NewDevicesFragment : Fragment() {
     }
 
     private fun listChildDevices() {
-        val token = TokenManager.getToken(requireContext())
-        if (token == null) {
-            showToast("Authentication error: Token is missing")
-            binding.swipeRefreshLayout.isRefreshing = false
-            return
-        }
-
         binding.swipeRefreshLayout.isRefreshing = true // Показываем индикатор
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -111,10 +103,6 @@ class NewDevicesFragment : Fragment() {
                 binding.requestTime.text = TimeFormatter.formatDateTime(device.createdAt)
 
                 binding.approveButton.setOnClickListener {
-                    TokenManager.getToken(requireContext()) ?: run {
-                        showToast("User not authenticated")
-                        return@setOnClickListener
-                    }
                     if (device.id == null) {
                         showToast("Device ID is missing")
                         return@setOnClickListener
@@ -153,12 +141,6 @@ class NewDevicesFragment : Fragment() {
     }
 
     private fun handleDeviceAction(device: ChildDevice, isConfirmed: Boolean) {
-        val token = TokenManager.getToken(requireContext())
-        if (token == null) {
-            showToast("User not authenticated")
-            return
-        }
-
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 if (isConfirmed) {

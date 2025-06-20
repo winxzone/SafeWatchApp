@@ -90,20 +90,20 @@
                 app:layout_constraintStart_toStartOf="@+id/textView4"
                 app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
-            <TextView
-                android:id="@+id/buttonForgotPassword"
-                android:layout_width="140dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="8dp"
-                android:focusable="false"
-                android:textAlignment="center"
-                android:paddingTop="14dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/forgot_password"
-                android:textColor="@color/primaryTextBlue"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="@+id/edPassword"
-                app:layout_constraintTop_toBottomOf="@+id/edPassword" />
+<!--            <TextView-->
+<!--                android:id="@+id/buttonForgotPassword"-->
+<!--                android:layout_width="140dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:layout_marginTop="8dp"-->
+<!--                android:focusable="false"-->
+<!--                android:textAlignment="center"-->
+<!--                android:paddingTop="14dp"-->
+<!--                android:fontFamily="sans-serif-medium"-->
+<!--                android:text="@string/forgot_password"-->
+<!--                android:textColor="@color/primaryTextBlue"-->
+<!--                android:textSize="16sp"-->
+<!--                app:layout_constraintEnd_toEndOf="@+id/edPassword"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/edPassword" />-->
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/checkboxRemindMe"

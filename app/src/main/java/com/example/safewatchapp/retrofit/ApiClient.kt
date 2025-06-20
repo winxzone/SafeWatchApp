@@ -72,6 +72,10 @@ object ApiClient {
         retrofit.create(DeviceLinkApiService::class.java)
     }
 
+    val deviceDataApiService: DeviceDataApiService by lazy {
+        retrofit.create(DeviceDataApiService::class.java)
+    }
+
     class AuthInterceptor(
         private val tokenManager: TokenManager,
         private val context: Context
@@ -117,6 +121,7 @@ object ApiClient {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
             context.startActivity(intent)
+            Log.e("SOS", "Перекидывает на LoginActivity, ВОТ В ЧЕМ ПРОБЛЕМА")
         }
     }
 }

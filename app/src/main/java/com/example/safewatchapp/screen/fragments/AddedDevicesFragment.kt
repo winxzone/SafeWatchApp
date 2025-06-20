@@ -17,7 +17,6 @@ import com.example.safewatchapp.manager.ChildManager
 import com.example.safewatchapp.models.ChildDevice
 import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.utils.TimeFormatter
-import com.example.safewatchapp.utils.TokenManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
 
@@ -52,13 +51,6 @@ class AddedDevicesFragment : Fragment() {
     }
 
     private fun listChildDevices() {
-        val token = TokenManager.getToken(requireContext())
-        if (token == null) {
-            showToast("Authentication error: Token is missing")
-            binding.swipeRefreshLayout.isRefreshing = false
-            return
-        }
-
         binding.swipeRefreshLayout.isRefreshing = true
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -156,6 +148,7 @@ class AddedDevicesFragment : Fragment() {
             bottomSheetDialog.show()
         }
 
+        // todo: ошибка удаления
         private fun deleteDevice(device: ChildDevice) {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {

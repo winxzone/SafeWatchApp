@@ -1,6 +1,9 @@
 package com.example.safewatchapp.screen.fragments
 
+import android.Manifest
+import android.content.ContentResolver
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -10,14 +13,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.example.safewatchapp.R
 import com.example.safewatchapp.databinding.FragmentAddChildProfileBinding
 import com.example.safewatchapp.screen.MainActivity
 import com.example.safewatchapp.viewmodels.CreateChildProfileViewModel
 import java.io.File
 import com.example.safewatchapp.utils.Result
+import androidx.core.net.toUri
 
 class ChildAddProfileFragment : Fragment() {
 
@@ -43,6 +49,16 @@ class ChildAddProfileFragment : Fragment() {
         }
     }
 
+    // Permission launcher for CAMERA
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                launchCamera()
+            } else {
+                Toast.makeText(requireContext(), "Разрешение на камеру отклонено", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -53,7 +69,6 @@ class ChildAddProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // todo почему cameraIcon? изменить название
         binding.cameraIcon.setOnClickListener { showImagePickerDialog() }
         binding.confirmButton.setOnClickListener { saveChildProfile() }
 
@@ -66,13 +81,11 @@ class ChildAddProfileFragment : Fragment() {
                 is Result.Success -> {
                     val childId = result.data
 
-                    // Можно также передать результат другим фрагментам
                     parentFragmentManager.setFragmentResult(
                         "childProfileAdded",
                         Bundle().apply { putString("childId", childId) }
                     )
 
-                    // Навигация на главный экран
                     val intent = Intent(requireContext(), MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     }
@@ -107,6 +120,17 @@ class ChildAddProfileFragment : Fragment() {
     }
 
     private fun capturePhoto() {
+        // Проверка разрешения на камеру
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            launchCamera()
+        }
+    }
+
+    private fun launchCamera() {
         selectedImageUri = createImageUri()
         takePictureLauncher.launch(selectedImageUri)
     }
@@ -127,7 +151,16 @@ class ChildAddProfileFragment : Fragment() {
 
         if (deviceId == null) return
 
-        viewModel.createChildProfile(name, selectedImageUri, requireContext(), deviceId)
+        val imageUriToUse = selectedImageUri ?: getDefaultAvatarUri()
+        viewModel.createChildProfile(name, imageUriToUse, requireContext(), deviceId)
+    }
+
+    private fun getDefaultAvatarUri(): Uri {
+        val resources = requireContext().resources
+        return (ContentResolver.SCHEME_ANDROID_RESOURCE +
+                "://" + resources.getResourcePackageName(R.drawable.ic_default_photo)
+                + "/" + resources.getResourceTypeName(R.drawable.ic_default_photo)
+                + "/" + resources.getResourceEntryName(R.drawable.ic_default_photo)).toUri()
     }
 
     override fun onDestroyView() {

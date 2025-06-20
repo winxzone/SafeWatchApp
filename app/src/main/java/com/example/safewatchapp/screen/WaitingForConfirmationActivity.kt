@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.safewatchapp.databinding.ActivityWaitingConfirmationBinding
 import com.example.safewatchapp.manager.DeviceManager
 import com.example.safewatchapp.models.ChildDevice
+import com.example.safewatchapp.models.Notification
 import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.utils.DeviceIdUtils.getDeviceUniqueId
 import kotlinx.coroutines.delay
@@ -23,6 +24,8 @@ class WaitingForConfirmationActivity : AppCompatActivity() {
         binding = ActivityWaitingConfirmationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         startPollingDeviceStatus()
+
+        sendNewDeviceNotification()
 
         binding.btnRetryRequest.setOnClickListener {
             Log.d("WaitingActivity", "Повторный запрос отправлен")
@@ -75,6 +78,25 @@ class WaitingForConfirmationActivity : AppCompatActivity() {
         }
     }
 
+    private fun sendNewDeviceNotification() {
+        val deviceName = "${Build.MANUFACTURER} ${Build.MODEL}"
+
+        val notification = Notification(
+            title = "Новое устройство добавлено",
+            message = "Устройство $deviceName ожидает подтверждения.",
+            timestamp = System.currentTimeMillis(),
+            type = "device_verification" // только для клиента
+        )
+
+        lifecycleScope.launch {
+            try {
+                ApiClient.notificationApiService.createNotification(notification)
+                Log.d("WaitingActivity", "✅ Уведомление успешно отправлено")
+            } catch (e: Exception) {
+                Log.e("WaitingActivity", "❌ Ошибка отправки уведомления: ${e.message}")
+            }
+        }
+    }
 
 
     private fun goToPermissionsScreen() {

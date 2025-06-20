@@ -5,17 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    android:background="@android:color/white">
+    android:background="@color/primaryBackgroundBlue">
 
     <!-- Заголовок -->
     <TextView
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Создание профиля ребенка"
+        android:text="@string/creating_child_profile_btn"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@color/primaryTextBlue"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,8 +24,9 @@
     <!-- Фото аватара -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/avatarImageView"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:padding="3dp"
         android:src="@drawable/ic_default_photo"
         android:scaleType="centerCrop"
         android:layout_marginTop="24dp"
@@ -34,7 +35,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:backgroundTint="@color/gray"
-        android:contentDescription="Аватар ребенка"/>
+        android:contentDescription="@string/avatar_child"
+        app:strokeColor="@color/white"
+        app:strokeWidth="6dp"/>
 
     <!-- Иконка камеры поверх аватара -->
     <ImageView
@@ -68,10 +71,11 @@
         android:id="@+id/confirmButton"
         android:layout_width="match_parent"
         android:layout_height="63dp"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@color/primaryTextBlue"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/primaryButtonBlue"
         android:text="Сохранить"
         android:textColor="@android:color/white"
+        app:cornerRadius="8dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

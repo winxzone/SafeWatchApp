@@ -1,6 +1,5 @@
 package com.example.safewatchapp.screen
 
-
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
@@ -11,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -19,25 +19,38 @@ import com.example.safewatchapp.R
 import com.example.safewatchapp.databinding.DialogEditNameBinding
 import com.example.safewatchapp.databinding.DrawerHeaderBinding
 import com.example.safewatchapp.databinding.MainBinding
-import com.example.safewatchapp.utils.TokenManager
 import com.example.safewatchapp.screen.fragments.ChildPhotoDialogFragment
 import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.manager.ChildManager
+import com.example.safewatchapp.models.DeviceDailySummaryResponse
+import com.example.safewatchapp.screen.fragments.AppFilterDialogFragment
+import com.example.safewatchapp.service.SummaryAnalyzer
+import com.example.safewatchapp.utils.RoleManager
 import com.example.safewatchapp.utils.handlers.NavigationHandler
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.launch
 import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import android.app.DatePickerDialog
+import android.graphics.BitmapFactory
+
+
+//todo: добавить эффект переворачивания карточки, в котором будет отображаться данные по которым определяется эмоция
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainBinding
+    private lateinit var navigationView: NavigationView
     private lateinit var navigationHandler: NavigationHandler
     private lateinit var childManager: ChildManager
     private var userProfileFetched = false
     private var childrenFetched = false
 
-    // TODO: 04.05 Сделать валидацию на имя ребенка
+    private var isShowingBack = false
 
-    // todo: после добавления ребенка нужно автоматически обновлять список в главном меню
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = MainBinding.inflate(layoutInflater)
@@ -46,31 +59,26 @@ class MainActivity : AppCompatActivity() {
         navigationHandler = NavigationHandler(this, binding)
         navigationHandler.setupNavigationMenu()
 
+        navigationView = binding.navigationView
+
         // Инициализируем ChildManager с контекстом для возможности использования SharedPreferences
         childManager = ChildManager(this)
-
-//        if(RoleManager.isChild(this)){
-//            checkPermissionsAndRedirect()
-//        } else{
-//            Log.d("MainActivity", "ROle Parent, skip checkPermissions")
-//        }
 
         setupUI()
         setupListeners()
         setupFragmentResultListener()
         setupBackPressedHandler()
         loadData()
+        setupFlipAnimation()
     }
 
     override fun onResume() {
         super.onResume()
-        // Даже если данные уже загружены из кэша, мы все равно пытаемся обновить их с сервера
-        val token = TokenManager.getToken(this)
-        if (token != null) {
-            fetchChildren()  // Метод fetchChildren теперь сам решает, нужно ли обращаться к серверу
-            if (!userProfileFetched) fetchUser()
-        }
+
+        fetchChildren()
+        if (!userProfileFetched) fetchUser()
     }
+
 
     private fun setupUI(){
         enableEdgeToEdge()
@@ -80,7 +88,8 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.navigationView) { v, insets ->
+
+        ViewCompat.setOnApplyWindowInsetsListener(navigationView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -88,32 +97,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadData(){
-        val token = TokenManager.getToken(this)
-        if (token != null) {
-            fetchChildren()
-            fetchUser()
-        } else {
-            Toast.makeText(this, "Token not found", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
+        fetchChildren()
+        fetchUser()
+
     }
 
-    // todo: проверка разрешений при входе
-//    private fun checkPermissionsAndRedirect() {
-//        val childDeviceId = DeviceManager.getChildDeviceId(this)
-//        val prefs = getSharedPreferences("ScreenCapturePrefs", MODE_PRIVATE)
-//        val hasMediaProjection = prefs.getBoolean("hasMediaProjection", false)
-//
-////        if (childDeviceId?.isNotEmpty() != true || !hasMediaProjection) {
-////            Log.d("MainActivity", "Отсутствуют разрешения или childDeviceId, открываем PermissionsActivity")
-////            startActivity(Intent(this, PermissionsActivity::class.java))
-////            finish()
-////        } else {
-////            Log.d("MainActivity", "Все разрешения на месте для Child")
-////        }
-//    }
-
+    @OptIn(ExperimentalMaterial3Api::class)
     private fun setupListeners() {
         binding.childNameTextView.setOnClickListener {
             showEditNameDialog()
@@ -137,6 +126,15 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
 
+        if (RoleManager.isChild(this)) {
+            binding.appFilterButton.visibility = View.VISIBLE
+            binding.appFilterButton.setOnClickListener {
+                AppFilterDialogFragment().show(supportFragmentManager, "AppFilterDialog")
+            }
+        } else {
+            binding.appFilterButton.visibility = View.GONE
+        }
+
         binding.childPhotoImageView.setOnClickListener {
             val currentChildId = childManager.getCurrentChild()?.id
             if (currentChildId != null) {
@@ -148,7 +146,77 @@ class MainActivity : AppCompatActivity() {
             fetchChildren(true)
         }
 
+        binding.calendarButton.setOnClickListener {
+            val today = LocalDate.now()
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, year, month, dayOfMonth ->
+                    // Форматируем выбранную дату
+                    val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                    val formattedDate = selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    loadChildProfileForDate(formattedDate)
+                },
+                today.year,
+                today.monthValue - 1, // month в DatePickerDialog начинается с 0
+                today.dayOfMonth
+            )
+
+            // Ограничиваем выбор дат не позже сегодняшнего дня
+            datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+
+            // Показываем календарь
+            datePickerDialog.show()
+        }
     }
+
+    private fun setupFlipAnimation() {
+
+        binding.flipButton.setOnClickListener {
+            flipCard(true)
+        }
+
+        binding.flipBackButton.setOnClickListener {
+            flipCard(false)
+        }
+    }
+
+    private fun flipCard(showBack: Boolean) {
+        if (isShowingBack == showBack) return
+
+        val frontView = binding.summaryDataLayout
+        val backView = binding.cardBack
+
+        val visibleView = if (showBack) frontView else backView
+        val hiddenView = if (showBack) backView else frontView
+
+        visibleView.animate()
+            .rotationY(90f)
+            .setDuration(150)
+            .withEndAction {
+                visibleView.visibility = View.GONE
+                hiddenView.visibility = View.VISIBLE
+                hiddenView.rotationY = 90f
+                hiddenView.animate()
+                    .rotationY(0f)
+                    .setDuration(150)
+                    .start()
+            }
+            .start()
+
+        isShowingBack = showBack
+    }
+
+    private fun updateBackCard(summary: DeviceDailySummaryResponse) {
+        binding.backSummaryDateTextView.text = summary.date
+
+        binding.backScreenTimeTextView.text = "Экранное время: ${summary.totalScreenTime / 60000} мин."
+        binding.backTopAppTextView.text = "Топ-приложение: ${summary.topAppPackage ?: "--"}"
+        binding.backNotificationsTextView.text = "Уведомлений: ${summary.notificationsCount}"
+        binding.backUnlocksTextView.text = "Разблокировок: ${summary.screenUnlockCount}"
+        binding.backUsedAtNightTextView.text = "Использовался ночью: ${if (summary.usedAtNight) "Да" else "Нет"}"
+    }
+
+
 
     private fun setupFragmentResultListener() {
         supportFragmentManager.setFragmentResultListener("childPhotoUpdated", this) { _, bundle ->
@@ -225,7 +293,7 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val user = response.body()
                     if (user != null) {
-                        val headerBinding = DrawerHeaderBinding.bind(binding.navigationView.getHeaderView(0))
+                        val headerBinding = DrawerHeaderBinding.bind(navigationView.getHeaderView(0))
                         headerBinding.userNameTextView.text = user.name
                         headerBinding.userEmailTextView.text = user.email
                     } else {
@@ -241,32 +309,153 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadChildProfileForDate(date: String) {
+        val child = childManager.getCurrentChild()
+        if (child == null) {
+            Toast.makeText(this@MainActivity, "Ребёнок не выбран", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            // Очищаем UI перед загрузкой новых данных
+            binding.childNameTextView.text = ""
+            binding.childPhotoImageView.setImageBitmap(null)
+            showNoSummary() // Сбрасываем саммари
+
+            childManager.loadExpandedChildProfile(
+                childId = child.id,
+                date = date,
+                onSuccess = { profile ->
+                    Log.d("MainActivity", "Profile loaded for $date: $profile")
+                    // Обновляем UI
+                    binding.childNameTextView.text = profile.name
+
+                    // Загружаем фото асинхронно
+                    lifecycleScope.launch {
+                        val bitmap = childManager.getChildProfilePhoto(profile.id)
+                        binding.childPhotoImageView.setImageBitmap(
+                            bitmap ?: BitmapFactory.decodeResource(resources, R.drawable.ic_default_photo)
+                        )
+                        Log.d("MainActivity", "Photo loaded for ${profile.id}: ${bitmap != null}")
+                    }
+
+                    profile.summary?.let { summary ->
+                        Log.d("MainActivity", "Summary for $date: $summary")
+                        showSummary(summary)
+                        updateBackCard(summary)
+                    } ?: run {
+                        Log.w("MainActivity", "No summary for $date")
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Нет данных за $date",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        showNoSummary()
+                    }
+
+                },
+                onError = { error ->
+                    Log.e("MainActivity", "Failed to load profile for $date: $error")
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Ошибка загрузки профиля за $date: $error",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    showNoSummary()
+                }
+            )
+        }
+    }
+
     private fun displayChildProfile() {
         val child = childManager.getCurrentChild()
-        if (child != null) {
-            binding.childNameTextView.text = child.name
+        if (child == null) {
+            Toast.makeText(this, "Ребёнок не выбран", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            // Проверяем, есть ли фото в кэше
-            val cachedPhoto = childManager.getCachedPhoto(child.id)
-            if (cachedPhoto != null) {
-                binding.childPhotoImageView.setImageBitmap(cachedPhoto)
-            } else {
-                TokenManager.getToken(this) ?: return
-                lifecycleScope.launch {
-                    try {
-                        childManager.getChildProfilePhoto(child.id, onSuccess = { bitmap ->
+        // Получаем текущую дату в формате YYYY-MM-DD
+        val currentDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+        lifecycleScope.launch {
+            childManager.loadExpandedChildProfile(
+                childId = child.id,
+                date = currentDate, // Передаем текущую дату
+                onSuccess = { profile ->
+                    binding.childNameTextView.text = profile.name
+
+                    // Загружаем фото асинхронно
+                    lifecycleScope.launch {
+                        val bitmap = childManager.getChildProfilePhoto(profile.id)
+                        if (bitmap != null) {
                             binding.childPhotoImageView.setImageBitmap(bitmap)
-                        },
-                            onError = { error ->
-                                Toast.makeText(this@MainActivity, error, Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                    } catch (e: Exception) {
-                        Log.e("MainActivity", "Error loading photo", e)
-                        Toast.makeText(this@MainActivity, "Error loading photo: ${e.message}", Toast.LENGTH_SHORT).show()
+                        } else {
+                            binding.childPhotoImageView.setImageResource(R.drawable.ic_default_photo)
+                        }
                     }
+
+                    profile.summary?.let { summary ->
+                        showSummary(summary)
+                        updateBackCard(summary) // Обновляем обратную сторону
+                    } ?: showNoSummary()
+                },
+                onError = { error ->
+                    Log.e("MainActivity", "Failed to load profile for $currentDate: $error")
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Ошибка загрузки профиля за $currentDate: $error",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    showNoSummary()
                 }
-            }
+            )
+        }
+    }
+
+    private fun showSummary(summary: DeviceDailySummaryResponse?) {
+        if (summary == null) {
+            showNoSummary()
+            return
+        }
+
+        binding.summaryDataLayout.visibility = View.VISIBLE
+        binding.noSummaryTextView.visibility = View.GONE
+
+        // Отображение даты
+        binding.summaryDateTextView.text = summary.date
+
+        // Эмоция — делаем первую букву заглавной
+        val emotionTranslated = SummaryAnalyzer.translateEmotion(summary.emotion)
+        val emotionCapitalized = emotionTranslated.replaceFirstChar { it.uppercaseChar() }
+        binding.emotionTextView.text = "Эмоция: $emotionCapitalized"
+
+
+        // Уверенность
+        val confidence = (summary.emotionConfidence * 100).toInt().coerceIn(0, 100)
+        binding.emotionConfidenceProgress.progress = confidence
+        binding.emotionConfidenceLabel.text = "Уверенность: $confidence%"
+
+        // Причины
+        val reasonsText = summary.reasons.takeIf { it.isNotEmpty() }
+            ?.joinToString("\n") { "• $it" }
+            ?: "Нет выявленных причин"
+        binding.reasonTextView.text = reasonsText
+
+        // Советы
+        val adviceText = summary.advice.takeIf { it.isNotBlank() }
+            ?: "Нет конкретных рекомендаций"
+        binding.adviceTextView.text = adviceText
+    }
+
+    private fun showNoSummary() {
+        val currentTime = LocalDateTime.now()
+        val formattedTime = currentTime.format(DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm", Locale("ru")))
+
+        binding.summaryDataLayout.visibility = View.GONE
+        binding.noSummaryTextView.visibility = View.VISIBLE
+        binding.noSummaryTextView.text = buildString {
+            append("Нет доступных данных за сегодня.\n")
+            append("Последнее обновление: $formattedTime")
         }
     }
 
@@ -292,13 +481,33 @@ class MainActivity : AppCompatActivity() {
             val saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             saveButton.setOnClickListener {
                 val newName = dialogBinding.editNameInput.text.toString().trim()
-                if (newName.isNotEmpty()) {
-                    updateChildName(newName)
-                    dialog.dismiss()
-                } else {
-                    // Отображаем сообщение об ошибке
-                    dialogBinding.errorTextView.visibility = View.VISIBLE
-                    dialogBinding.errorTextView.text = getString(R.string.error_empty_name)
+
+                // Валидация имени
+                when {
+                    newName.isEmpty() -> {
+                        dialogBinding.errorTextView.visibility = View.VISIBLE
+                        dialogBinding.errorTextView.text = getString(R.string.error_empty_name)
+                    }
+                    newName.length > 14 -> {
+                        dialogBinding.errorTextView.visibility = View.VISIBLE
+                        dialogBinding.errorTextView.text = getString(R.string.error_name_too_long)
+                    }
+                    newName.contains(Regex("\\d")) -> {
+                        dialogBinding.errorTextView.visibility = View.VISIBLE
+                        dialogBinding.errorTextView.text = getString(R.string.error_name_contains_digits)
+                    }
+                    newName.contains(Regex("\\s")) -> {
+                        dialogBinding.errorTextView.visibility = View.VISIBLE
+                        dialogBinding.errorTextView.text = getString(R.string.error_name_multiple_words)
+                    }
+                    !newName.matches(Regex("^[a-zA-Zа-яА-ЯёЁ]+$")) -> {
+                        dialogBinding.errorTextView.visibility = View.VISIBLE
+                        dialogBinding.errorTextView.text = getString(R.string.error_name_invalid_characters)
+                    }
+                    else -> {
+                        updateChildName(newName)
+                        dialog.dismiss()
+                    }
                 }
             }
         }
@@ -306,7 +515,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateChildName(newName: String) {
-        TokenManager.getToken(this) ?: return
         val child = childManager.getCurrentChild() ?: return
 
         Log.d("MainActivity", "Начало обновления имени: childId=${child.id}, newName=$newName")

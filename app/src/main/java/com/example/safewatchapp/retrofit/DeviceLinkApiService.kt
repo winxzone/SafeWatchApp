@@ -18,7 +18,7 @@ interface DeviceLinkApiService {
         @Part photo: MultipartBody.Part?
     ): Response<Map<String, String>>
 
-    @DELETE("child-device/{deviceId}/with-child")
+    @DELETE("child-device/{childDeviceId}/with-child")
     suspend fun deleteDeviceAndChild(
         @Path("childDeviceId") childDeviceId: String
     ): Response<Unit>

@@ -3,11 +3,11 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-05-08T14:30:34.985884900Z">
+        <option name="selectionMode" value="DIALOG" />
+        <DropdownSelection timestamp="2025-06-04T11:34:24.884385300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Winxzone\.android\avd\Medium_Phone.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=dqojg6mfsotwjn4x" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -20,7 +20,7 @@
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Winxzone\.android\avd\Medium_Phone.avd" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Winxzone\.android\avd\Pixel_7.avd" />
               </handle>
             </Target>
           </targets>

@@ -3,6 +3,7 @@ package com.example.safewatchapp.screen
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 class RegistationActivity : AppCompatActivity() {
     private lateinit var binding: RegistationBinding
 
-    // todo: не работает validation на дублирование данных
+    // todo: Регистрация нового пользователя с существующими данными проходит(проблема в клиенте)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,24 +66,31 @@ class RegistationActivity : AppCompatActivity() {
         val password = binding.edPassword.text.toString()
         val confirmPassword = binding.edConfirmPassword.text.toString()
 
-        Log.d("Register", "Name: $name, Email: $email, Password: $password, ConfirmPassword: $confirmPassword")
-
-        // Создаём объект UserRegistration
         val userRegistration = UserRegistration(name, email, password, confirmPassword)
 
-        // Используем корутины для регистрации
         lifecycleScope.launch {
             try {
-                val user = ApiClient.authApiService.registerUser(userRegistration)
-                // Обработка успешной регистрации
-                Log.d("Register", "User registered successfully: $user")
+                val response = ApiClient.authApiService.registerUser(userRegistration)
 
-                // Перенаправление на экран входа после успешной регистрации
-                val intent = Intent(this@RegistationActivity, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                if (response.isSuccessful) {
+                    val user = response.body()
+                    Log.d("Register", "User registered successfully: $user")
+
+                    val intent = Intent(this@RegistationActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    // Обробка помилки, наприклад 409
+                    Log.e("Register", "Registration failed: ${response.code()} - ${response.errorBody()?.string()}")
+
+                    when (response.code()) {
+                        409 -> binding.edEmail.error = "Користувач з таким email вже існує"
+                        else -> Toast.makeText(this@RegistationActivity, "Помилка реєстрації: ${response.code()}", Toast.LENGTH_LONG).show()
+                    }
+                }
             } catch (e: Exception) {
-                Log.e("Register", "Registration failed: ${e.message}")
+                Log.e("Register", "Exception during registration: ${e.message}")
+                Toast.makeText(this@RegistationActivity, "Помилка підключення до сервера", Toast.LENGTH_LONG).show()
             }
         }
     }

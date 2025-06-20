@@ -19,7 +19,6 @@ import com.example.safewatchapp.databinding.DialogDeleteObjectBinding
 import com.example.safewatchapp.models.Notification
 import com.example.safewatchapp.retrofit.ApiClient
 import com.example.safewatchapp.utils.NotificationDiffUtil
-import com.example.safewatchapp.utils.TokenManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
 
@@ -118,7 +117,7 @@ class NotificationActivity : AppCompatActivity() {
         bindingSheet.btnConfirmDelete.text = "Удалить"
         bindingSheet.btnConfirmDelete.setOnClickListener {
             bottomSheetDialog.dismiss()
-            deleteNotification(notification.id) // Удаляем на сервере
+            deleteNotification(notification.id.toString()) // Удаляем на сервере
         }
 
         bindingSheet.btnCancelDelete.setOnClickListener {
@@ -134,8 +133,6 @@ class NotificationActivity : AppCompatActivity() {
 
 
     private fun fetchNotifications() {
-        getTokenOrShowError() ?: return
-
         lifecycleScope.launch {
             try {
                 binding.swipeRefreshLayout.isRefreshing = true
@@ -153,8 +150,6 @@ class NotificationActivity : AppCompatActivity() {
     }
 
     private fun deleteNotification(notificationId: String) {
-        getTokenOrShowError() ?: return
-
         lifecycleScope.launch {
             try {
                 val response = ApiClient.notificationApiService.deleteNotification(notificationId)
@@ -181,14 +176,6 @@ class NotificationActivity : AppCompatActivity() {
         binding.notificationRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
         binding.emptyAnimation.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.noNotificationsText.visibility = if (isEmpty) View.VISIBLE else View.GONE
-    }
-
-    private fun getTokenOrShowError(): String? {
-        val token = TokenManager.getToken(this)
-        if (token.isNullOrEmpty()) {
-            return null
-        }
-        return token
     }
 
     private fun showToast(message: String) {

@@ -58,8 +58,6 @@ class NavigationHandler(
             ChildManager(activity).clearAllCache()
             RoleManager.clearRole(activity)
 
-//            activity.stopService(activity, UsageStatsService::class.java)
-
             activity.startActivity(Intent(activity, ChooseUserActivity::class.java))
             activity.finish()
         }

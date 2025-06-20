@@ -4,9 +4,9 @@
     <string name="button_next">Далее</string>
     <string name="child">Ребёнок</string>
     <string name="parent">Родитель</string>
-    <string name="email">Почта</string>
-    <string name="password">Пароль</string>
-    <string name="confirm_password">Подтверждение пароля</string>
+    <string name="email">Почта*</string>
+    <string name="password">Пароль*</string>
+    <string name="confirm_password">Подтверждение пароля*</string>
     <string name="welcome_back">С возвращением!</string>
     <string name="login">Войти</string>
     <string name="name">Имя*</string>
@@ -40,7 +40,7 @@
     <string name="default_name">Имя Ребенка</string>
     <string name="next_child">Next child</string>
     <string name="previous_child">Previous child</string>
-    <string name="instruction">1. Установите это приложение на устройство ребенка.\n2. Выберите в меню \'Ребенок\'.\n3. Залогиньтесь под своими данными.\n4. Обновите страницу.</string>
+    <string name="instruction">1. Установите это приложение на устройство ребенка.\n2. Выберите в меню \'Ребенок\'.\n3. Залогиньтесь под своими данными.\n4. Перейдите в Устройства. \n5. Подтвердите устройство ребенка</string>
     <string name="instruction_title">Чтобы добавить устройство, следуйте инструкциям в приложении.</string>
     <string name="notice_before_instruction">У вас не добавлено ниодного устройство ребенка</string>
     <string name="open_menu">Open menu</string>
@@ -65,4 +65,16 @@
     <string name="currently_no_devices_awaiting_approval">На данный момент нет устройств, ожидающих подтверждения</string>
     <string name="no_devices_added">Нет добавленных устройств</string>
     <string name="currently_no_associated_devices">На данный момент нет связаных устройств</string>
+    <string name="error_name_too_long">Имя не должно превышать 14 символов</string>
+    <string name="error_name_contains_digits">Имя не должно содержать цифры</string>
+    <string name="error_name_multiple_words">Имя должно состоять из одного слова</string>
+    <string name="error_name_invalid_characters">Имя может содержать только буквы</string>
+    <string name="approve">Подтвердить</string>
+    <string name="decline">Отменить</string>
+    <string name="application_filter">Фильтр приложений</string>
+    <string name="search_for_applications">Поиск приложений</string>
+    <string name="ok_btn">ОК</string>
+    <string name="cancel_btn">Отмена</string>
+    <string name="creating_child_profile_btn">Создание профиля ребенка</string>
+    <string name="avatar_child">Аватар ребенка</string>
 </resources>

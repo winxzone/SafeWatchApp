@@ -2,13 +2,13 @@ package com.example.safewatchapp.screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.safewatchapp.R
 import com.example.safewatchapp.databinding.ChooseUserBinding
 import com.example.safewatchapp.utils.RoleManager
 import android.widget.Toast
 
-// todo: изменить логику, сделать LauncherActivity, который автоматически будет открывать нужное активити, в зависимости от роли/разрешения
 class ChooseUserActivity : AppCompatActivity() {
     private lateinit var binding: ChooseUserBinding
     private var selectedRole: String? = null
@@ -17,6 +17,7 @@ class ChooseUserActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val savedRole = RoleManager.getRole(this)
+        Log.d("ChooseUserActivity", "$savedRole")
         if (savedRole != null) {
             navigateToNextScreen(savedRole)
             finish()
@@ -74,13 +75,13 @@ class ChooseUserActivity : AppCompatActivity() {
     private fun saveRoleToPreferences() {
         selectedRole?.let {
             RoleManager.saveRole(this, it)
-            println("ChooseUserActivity: Role saved = $it")
+            Log.d("ChooseUserActivity", "Role saved = $it")
         }
     }
 
     private fun navigateToNextScreen(role: String) {
         val intent = Intent(this, LoginActivity::class.java)
-        println("ChooseUserActivity: Navigating to LoginActivity with role = $role")
+        Log.d("ChooseUserActivity", "Navigating to LoginActivity with role = $role")
         startActivity(intent)
     }
 }

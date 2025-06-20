@@ -46,6 +46,8 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.retrofit.coroutines.adapter)
     implementation(libs.androidx.work)
+    implementation(libs.datastore)
+    implementation(libs.gson)
 
     implementation(libs.androidx.core)
     implementation(libs.androidx.core.ktx)
@@ -58,6 +60,7 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.airbnb.android)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.material3.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

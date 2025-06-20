@@ -15,6 +15,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.ConcurrentHashMap
 import androidx.core.content.edit
+import com.example.safewatchapp.models.ExpandedChildProfile
+import retrofit2.HttpException
 
 class ChildManager(private val context: Context? = null) {
 
@@ -24,6 +26,16 @@ class ChildManager(private val context: Context? = null) {
         private const val CURRENT_CHILD_ID_KEY = "current_child_id"
         private const val TAG = "ChildManager"
         private const val PHOTO_CACHE_DIR = "child_photos"
+    }
+
+    private val photosDir: File by lazy {
+        File(context?.filesDir, "child_photos").also { dir ->
+            if (!dir.exists()) {
+                val created = dir.mkdirs()
+                Log.d(TAG, "Создание директории: ${dir.absolutePath}, успех: $created")
+            }
+            Log.d(TAG, "Photos directory инициализирована: ${dir.absolutePath}")
+        }
     }
 
     private var childrenList: MutableList<Child> = mutableListOf()
@@ -60,7 +72,6 @@ class ChildManager(private val context: Context? = null) {
                     Log.d(TAG, "No cached children data found")
                 }
 
-                // Load currentChildId
                 currentChildId = sharedPrefs.getString(CURRENT_CHILD_ID_KEY, null)
                 if (currentChildId == null || !childrenList.any { it.id == currentChildId }) {
                     currentChildId = childrenList.firstOrNull()?.id
@@ -70,6 +81,25 @@ class ChildManager(private val context: Context? = null) {
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading cached data: ${e.message}", e)
             }
+        }
+    }
+
+    suspend fun loadExpandedChildProfile(
+        childId: String,
+        date: String,
+        onSuccess: (ExpandedChildProfile) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val response = ApiClient.childProfileApiService.getExpandedChildProfile(childId, date)
+            Log.w("MainActivity", "!!!! $response")
+            if (response.isSuccessful && response.body() != null) {
+                onSuccess(response.body()!!)
+            } else {
+                onError("Ошибка загрузки профиля: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            onError("Ошибка запроса: ${e.message}")
         }
     }
 
@@ -105,17 +135,37 @@ class ChildManager(private val context: Context? = null) {
 
     private fun savePhotoToDisk(childId: String, bitmap: Bitmap) {
         try {
-            val photoDir = getPhotoDirectory() ?: return
+            val photoDir = photosDir
+            // Директория уже должна существовать, но проверим на всякий случай
+            if (!photoDir.exists()) {
+                val created = photoDir.mkdirs()
+                Log.d(TAG, "Создание директории при сохранении: ${photoDir.absolutePath}, успех: $created")
+            }
+
             val photoFile = File(photoDir, "$childId.jpg")
+            Log.d(TAG, "Сохранение фото в: ${photoFile.absolutePath}")
 
             FileOutputStream(photoFile).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                val success = bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                if (!success) {
+                    Log.e(TAG, "Не удалось сохранить bitmap: compress вернул false")
+                } else {
+                    Log.d(TAG, "Bitmap успешно сжат и записан")
+                }
             }
-            Log.d(TAG, "Photo saved to disk for child: $childId")
+
+            // Проверка размера файла
+            if (photoFile.length() == 0L) {
+                Log.e(TAG, "Файл изображения сохранён, но он пустой!")
+            } else {
+                Log.d(TAG, "Photo saved to disk: ${photoFile.absolutePath}, size: ${photoFile.length()} bytes")
+            }
+
         } catch (e: Exception) {
             Log.e(TAG, "Error saving photo to disk: ${e.message}", e)
         }
     }
+
 
     fun removeChildFromCache(childId: String) {
         val wasRemoved = childrenList.removeAll { it.id == childId }
@@ -192,46 +242,54 @@ class ChildManager(private val context: Context? = null) {
         }
     }
 
-    suspend fun getChildProfilePhoto(
-        childId: String,
-        onSuccess: (Bitmap) -> Unit,
-        onError: (String) -> Unit
-    ) {
+    suspend fun getChildProfilePhoto(childId: String): Bitmap? {
+        Log.d(TAG, "=== Загрузка фото для childId: $childId ===")
+
+        // Проверка кэша
         photoCache[childId]?.let {
-            onSuccess(it)
-            return
+            Log.d(TAG, "Фото найдено в памяти (кэше)")
+            return it
         }
 
-        val photoDir = getPhotoDirectory() ?: run {
-            onError("Photo directory not available")
-            return
-        }
+        // Используем кэшированную директорию
+        val photoDir = photosDir
+        Log.d(TAG, "photoDir: ${photoDir.absolutePath}")
+
         val photoFile = File(photoDir, "$childId.jpg")
+        Log.d(TAG, "Ожидаемый путь к фото: ${photoFile.absolutePath}")
+
         if (photoFile.exists()) {
+            Log.d(TAG, "Файл существует. Размер: ${photoFile.length()} байт")
             val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
             if (bitmap != null) {
+                Log.d(TAG, "Bitmap успешно декодирован с диска")
                 photoCache[childId] = bitmap
-                onSuccess(bitmap)
-                return
+                return bitmap
+            } else {
+                Log.e(TAG, "Bitmap = null после декодирования файла")
             }
+        } else {
+            Log.e(TAG, "Файл НЕ существует по пути: ${photoFile.absolutePath}")
         }
 
-        try {
-            Log.d(TAG, "Downloading photo for child: $childId")
+        // Попытка загрузить с сервера
+        return try {
+            Log.d(TAG, "Фото не найдено локально, пробуем загрузить с API")
             val responseBody = ApiClient.childProfileApiService.downloadChildPhoto(childId)
             val inputStream = responseBody.byteStream()
             val bitmap = BitmapFactory.decodeStream(inputStream)
-            photoCache[childId] = bitmap
-            savePhotoToDisk(childId, bitmap)
-            onSuccess(bitmap)
+            if (bitmap != null) {
+                Log.d(TAG, "Bitmap успешно загружен из сети")
+                photoCache[childId] = bitmap
+                savePhotoToDisk(childId, bitmap)
+            } else {
+                Log.e(TAG, "Bitmap = null после загрузки из сети")
+            }
+            bitmap
         } catch (e: Exception) {
-            Log.e(TAG, "Error downloading photo: ${e.message}", e)
-            onError("Error: ${e.message}")
+            Log.e(TAG, "Ошибка при загрузке фото с API: ${e.message}", e)
+            null
         }
-    }
-
-    fun getCachedPhoto(childId: String): Bitmap? {
-        return photoCache[childId]
     }
 
     fun updatePhotoInCache(childId: String, photoFile: File) {
@@ -306,32 +364,72 @@ class ChildManager(private val context: Context? = null) {
             return
         }
 
-        val requestFile = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
-        val filePart = MultipartBody.Part.createFormData("file", photoFile.name, requestFile)
+        // Определяем правильный MIME-тип на основе расширения файла
+        val mimeType = when (photoFile.extension.lowercase()) {
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
+            "webp" -> "image/webp"
+            else -> "image/jpeg"
+        }
+
+        val requestFile = photoFile.asRequestBody(mimeType.toMediaTypeOrNull())
+
+        // ВАЖНО: сервер ожидает поле с именем "photo", а не "file"
+        val filePart = MultipartBody.Part.createFormData("photo", photoFile.name, requestFile)
 
         try {
-            Log.d(TAG, "Sending request to update photo: childId=$childId")
-            ApiClient.childProfileApiService.updateChildPhoto(childId, filePart)
+            Log.d(TAG, "Sending request to update photo:")
+            Log.d(TAG, "- childId: $childId")
+            Log.d(TAG, "- fileName: ${photoFile.name}")
+            Log.d(TAG, "- fileSize: ${photoFile.length()} bytes")
+            Log.d(TAG, "- mimeType: $mimeType")
+
+            val response = ApiClient.childProfileApiService.updateChildPhoto(childId, filePart)
+            Log.d(TAG, "Photo upload successful")
+
             updatePhotoInCache(childId, photoFile)
             onSuccess()
+        } catch (e: HttpException) {
+            Log.e(TAG, "HTTP Error ${e.code()}: ${e.message()}")
+            try {
+                val errorBody = e.response()?.errorBody()?.string()
+                Log.e(TAG, "Error response body: $errorBody")
+                onError("Upload failed: HTTP ${e.code()} - $errorBody")
+            } catch (ex: Exception) {
+                onError("Upload failed: HTTP ${e.code()}")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error updating photo: ${e.message}", e)
             onError("Error: ${e.message}")
         }
     }
 
-    private fun isImageValid(file: File): Boolean {
-        return isValidImage(file) && isFileSizeValid(file)
-    }
+    // Улучшенная валидация изображения
+    private fun isImageValid(photoFile: File): Boolean {
+        if (!photoFile.exists()) {
+            Log.e(TAG, "File does not exist: ${photoFile.absolutePath}")
+            return false
+        }
 
-    private fun isValidImage(file: File): Boolean {
-        val validExtensions = listOf("jpg", "jpeg", "png", "webp")
-        val extension = file.extension.lowercase()
-        return validExtensions.contains(extension)
-    }
+        if (photoFile.length() == 0L) {
+            Log.e(TAG, "File is empty: ${photoFile.name}")
+            return false
+        }
 
-    private fun isFileSizeValid(file: File): Boolean {
-        val maxFileSize = 5 * 1024 * 1024 // 5 MB
-        return file.length() <= maxFileSize
+        if (photoFile.length() > 10 * 1024 * 1024) { // 10MB лимит
+            Log.e(TAG, "File too large: ${photoFile.length()} bytes")
+            return false
+        }
+
+        val allowedExtensions = listOf("jpg", "jpeg", "png", "webp")
+        val extension = photoFile.extension.lowercase()
+
+        if (extension !in allowedExtensions) {
+            Log.e(TAG, "Unsupported file type: $extension")
+            return false
+        }
+
+        Log.d(TAG, "File validation passed: ${photoFile.name}")
+        return true
     }
 }

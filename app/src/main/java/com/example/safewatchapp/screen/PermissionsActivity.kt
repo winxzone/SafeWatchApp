@@ -2,9 +2,11 @@ package com.example.safewatchapp.screen
 
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -13,17 +15,25 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.safewatchapp.databinding.ActivityPermissionsBinding
 import android.provider.Settings
-
+import androidx.core.net.toUri
 
 class PermissionsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPermissionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (areAllPermissionsGranted()) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
+
         binding = ActivityPermissionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         enableEdgeToEdge()
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -34,33 +44,68 @@ class PermissionsActivity : AppCompatActivity() {
         updateSwitchStates()
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateSwitchStates()
+        logPermissionsState()
+    }
+
+    private fun logPermissionsState() {
+        Log.d("PermissionsActivity", "UsageStats: ${hasUsageStatsPermission()}")
+        Log.d("PermissionsActivity", "Notifications: ${isNotificationServiceEnabled()}")
+        Log.d("PermissionsActivity", "BatteryOptimizationsIgnored: ${isBatteryOptimizationIgnored()}")
+    }
+
+
     private fun setupListeners() {
-        binding.switchUsageStats.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
+        binding.switchUsageStats.setOnClickListener {
+            if (!hasUsageStatsPermission()) {
                 openSettings(Settings.ACTION_USAGE_ACCESS_SETTINGS, "Включите доступ к статистике в настройках")
             } else {
-                showToast("Доступ к статистике отключён")
+                showToast("Доступ к статистике уже предоставлен")
             }
         }
 
         binding.switchBatteryOptimization.setOnClickListener {
-            openSettings(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, "Не удалось открыть настройки батареи")
-        }
-
-        binding.switchNotifications.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                openSettings(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS, "Включите доступ к уведомлениям в настройках")
+            if (!isBatteryOptimizationIgnored()) {
+                openBatteryOptimizationSettings()
             } else {
-                showToast("Доступ к уведомлениям отключён")
+                showToast("Оптимизация уже отключена")
             }
         }
 
+        binding.switchNotifications.setOnClickListener {
+            if (!isNotificationServiceEnabled()) {
+                openSettings(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS, "Включите доступ к уведомлениям в настройках")
+            } else {
+                showToast("Доступ к уведомлениям уже предоставлен")
+            }
+        }
+
+        binding.switchOpenAutostartSettings.setOnClickListener {
+            try {
+                val intent = Intent().apply {
+                    component = ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                    )
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Автозапуск можно включить в настройках телефона вручную", Toast.LENGTH_LONG).show()
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = "package:$packageName".toUri()
+                })
+            }
+        }
+
+
         binding.btnConfirmPermissions.setOnClickListener {
-            if (hasUsageStatsPermission()) {
+            if (areAllPermissionsGranted()) {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             } else {
-                showToast("Включите доступ к статистике приложений")
+                showToast("Пожалуйста, предоставьте все разрешения")
             }
         }
     }
@@ -68,6 +113,7 @@ class PermissionsActivity : AppCompatActivity() {
     private fun updateSwitchStates() {
         binding.switchUsageStats.isChecked = hasUsageStatsPermission()
         binding.switchNotifications.isChecked = isNotificationServiceEnabled()
+        binding.switchBatteryOptimization.isChecked = isBatteryOptimizationIgnored()
     }
 
     @SuppressLint("InlinedApi")
@@ -102,6 +148,26 @@ class PermissionsActivity : AppCompatActivity() {
         return enabledListeners?.contains(packageName) == true
     }
 
+    private fun isBatteryOptimizationIgnored(): Boolean {
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            powerManager.isIgnoringBatteryOptimizations(packageName)
+        } else {
+            true
+        }
+    }
+
+    private fun openBatteryOptimizationSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+            intent.data = "package:$packageName".toUri()
+            startActivity(intent)
+        } catch (e: Exception) {
+            showToast("Не удалось открыть настройки батареи")
+            Log.e("PermissionsActivity", "Ошибка открытия настроек батареи", e)
+        }
+    }
+
     private fun openSettings(action: String, errorMessage: String) {
         try {
             startActivity(Intent(action).apply {
@@ -111,6 +177,12 @@ class PermissionsActivity : AppCompatActivity() {
             showToast(errorMessage)
             Log.e("PermissionsActivity", "Ошибка открытия настроек $action", e)
         }
+    }
+
+    private fun areAllPermissionsGranted(): Boolean {
+        return hasUsageStatsPermission()
+                && isNotificationServiceEnabled()
+                && isBatteryOptimizationIgnored()
     }
 
     private fun showToast(message: String) {
