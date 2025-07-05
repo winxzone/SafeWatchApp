@@ -54,13 +54,26 @@ https://pixso.net/app/editor/jBcgJwd_H3ZzYYWbnyjROw?file_type=10&icon_type=1&pag
 ### Sample Screens
 
 Login Screen:  
-<img src="https://github.com/user-attachments/assets/3d7fe23c-23e2-4efe-abc7-6694f769fd65" width="700"/>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/3d7fe23c-23e2-4efe-abc7-6694f769fd65" width="700"/>
+</p>
 
 Child Dashboard:  
-<img src="https://github.com/user-attachments/assets/54b2d201-e778-4fb2-83eb-1b6339b38632" width="700"/>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/54b2d201-e778-4fb2-83eb-1b6339b38632" width="700"/>
+</p>
 
 Parent Report:  
-<img src="https://github.com/user-attachments/assets/945e7926-360a-4327-90cf-a8b0748fc38e" width="350"/>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/945e7926-360a-4327-90cf-a8b0748fc38e" width="350"/>
+</p>
+
+
+Child Screens:
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a2da482c-b3cc-4006-b4e2-f7f2ce5a9b95" width="700"/>
+</p>
 
 ---
 
